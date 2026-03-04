@@ -1,5 +1,4 @@
-// src/app/(auth)/Login.tsx
-
+import { AuthCard } from "@/src/components/(auth)/organisms/AuthCard";
 import { router } from "expo-router";
 import React from "react";
 import {
@@ -9,7 +8,6 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { AuthCard } from "@/components/(auth)/organisms/AuthCard";
 
 export default function LoginScreen() {
   const handleAuth = () => {

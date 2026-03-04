@@ -1,6 +1,4 @@
-// src/app/(auth)/Register.tsx
-
-import { AuthCard } from "@/components/(auth)/organisms/AuthCard";
+import { AuthCard } from "@/src/components/(auth)/organisms/AuthCard";
 import { router } from "expo-router";
 import React from "react";
 import {
