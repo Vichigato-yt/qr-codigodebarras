@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
 
-import { CameraScanner } from "@/src/components/scanner/CameraScanner";
+import { CameraScanner } from "@/src/components/Organisms/CameraScanner";
 
 export default function ScannerScreen() {
   const [isProcessing, setIsProcessing] = useState(false);
