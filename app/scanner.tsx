@@ -1,7 +1,7 @@
+import * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import * as Notifications from "expo-notifications";
 
 import { CameraScanner } from "@/src/components/scanner/CameraScanner";
 

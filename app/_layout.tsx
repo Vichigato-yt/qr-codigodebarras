@@ -1,5 +1,5 @@
-import { useCallback } from "react";
 import { Stack } from "expo-router";
+import { useCallback } from "react";
 
 import { usePushNotifications } from "@/src/lib/core/notifications";
 
