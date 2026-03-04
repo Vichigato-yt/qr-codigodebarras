@@ -2,7 +2,6 @@
 
 # dependencies
 node_modules/
-
 # Expo
 .expo/
 dist/
@@ -43,3 +42,7 @@ app-example
 # generated native folders
 /ios
 /android
+
+# notificaciones push archivo sensible
+
+notificacionespush2008-e092d3b8760d.json
