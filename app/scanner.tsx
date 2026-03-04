@@ -4,6 +4,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { CameraScanner } from "@/src/components/scanner/CameraScanner";
+import { NotificationAdapter } from "@/src/lib/core/notifications";
 
 type MockProduct = {
   code: string;
@@ -52,6 +53,27 @@ export default function ScannerScreen() {
     []
   );
 
+  const sendRemotePush = useCallback(async (code: string, name: string) => {
+    try {
+      const token = await NotificationAdapter.registerForPushNotificationsAsync();
+      if (!token) return;
+
+      await fetch("https://exp.host/--/api/v2/push/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: token,
+          title: "Escaneo exitoso",
+          body: `${name} (${code}) listo para checkout`,
+          sound: "default",
+          data: { code, name },
+        }),
+      });
+    } catch (error) {
+      console.log("No se pudo enviar push remoto", error);
+    }
+  }, []);
+
   const sendLocalNotification = useCallback(async (code: string, name: string) => {
     try {
       await Notifications.scheduleNotificationAsync({
@@ -88,6 +110,7 @@ export default function ScannerScreen() {
           setSelectedProduct(deepLinkProduct);
           setScanMessage("Producto detectado desde deep link. Listo para checkout.");
           await sendLocalNotification(deepLinkProduct.code, deepLinkProduct.name);
+          await sendRemotePush(deepLinkProduct.code, deepLinkProduct.name);
           return;
         }
 
@@ -105,6 +128,7 @@ export default function ScannerScreen() {
         setSelectedProduct(fastProduct);
         setScanMessage("Lectura válida. Producto preparado para pagar.");
         await sendLocalNotification(fastProduct.code, fastProduct.name);
+        await sendRemotePush(fastProduct.code, fastProduct.name);
         return;
       }
 
@@ -114,6 +138,7 @@ export default function ScannerScreen() {
         setSelectedProduct(localProduct);
         setScanMessage("Producto encontrado en catálogo ficticio.");
         await sendLocalNotification(localProduct.code, localProduct.name);
+        await sendRemotePush(localProduct.code, localProduct.name);
         return;
       }
 
@@ -127,7 +152,7 @@ export default function ScannerScreen() {
       processingRef.current = false;
       setIsProcessing(false);
     }
-  }, [localProductMap, sendLocalNotification]);
+  }, [localProductMap, sendLocalNotification, sendRemotePush]);
 
   const handleScanError = useCallback((error: Error) => {
     if (error.message === "EMPTY_SCAN") {
