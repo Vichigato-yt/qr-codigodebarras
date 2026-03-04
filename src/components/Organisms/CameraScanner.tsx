@@ -4,9 +4,9 @@ import { StyleSheet, View } from "react-native";
 import { FlashOverlay } from "../atoms/FlashOverlay";
 import { CameraPermission } from "../molecules/CameraPermission";
 import { ScanOverlay } from "../molecules/ScanOverlay";
-import { useScannerAudio } from "../hooks/useScannerAudio";
-import { useScanAnimation } from "../hooks/useScanAnimation";
-import { useScanState } from "../hooks/useScanState";
+import { useScannerAudio } from "@/src/lib/hooks/useScannerAudio";
+import { useScanAnimation } from "@/src/lib/hooks/useScanAnimation";
+import { useScanState } from "@/src/lib/hooks/useScanState";
 import React from "react";
 
 type CameraScannerProps = {

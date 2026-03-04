@@ -1,7 +1,7 @@
-import { Animated, StyleSheet, Text, View } from "react-native";
-import { StateBadge } from "../atoms/StateBadge";
-import { ScanFrame } from "./ScanFrame";
+import { StateBadge } from "@/src/components/atoms/StateBadge";
 import React from "react";
+import { Animated, StyleSheet, Text, View } from "react-native";
+import { ScanFrame } from "./ScanFrame";
 
 type UiState = {
   frameColor: string;
