@@ -1,0 +1,72 @@
+// src/app/(auth)/Login.tsx
+
+import { router } from "expo-router";
+import React from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
+import { AuthCard } from "@/components/organisms/AuthCard";
+
+export default function LoginScreen() {
+  const handleAuth = () => {
+    // TODO: conectar lógica real de auth
+    router.replace("/(checkout)/scanner");
+  };
+
+  return (
+    <View style={styles.root}>
+      {/* Fondo con puntos estilo scanner */}
+      <View style={styles.bgGrid} pointerEvents="none" />
+      <View style={styles.bgGlow} pointerEvents="none" />
+
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <AuthCard onAuth={handleAuth} />
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: "#0B1020",
+  },
+  bgGlow: {
+    position: "absolute",
+    width: 340,
+    height: 340,
+    borderRadius: 170,
+    backgroundColor: "rgba(34,197,94,0.06)",
+    top: -80,
+    alignSelf: "center",
+  },
+  bgGrid: {
+    position: "absolute",
+    inset: 0,
+    opacity: 0.03,
+    // grid decorativo via border
+    borderWidth: 0,
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  scroll: {
+    flexGrow: 1,
+    justifyContent: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 48,
+  },
+});
