@@ -1,26 +1,17 @@
-import { AuthCard } from "@/src/components/(auth)/organisms/AuthCard";
+// app/(auth)/Login.tsx
 import { router } from "expo-router";
 import React from "react";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from "react-native";
+import { AuthCard } from "@/src/components/(auth)/organisms/AuthCard";
 
 export default function LoginScreen() {
   const handleAuth = () => {
-    // TODO: conectar lógica real de auth
-    router.replace("./scanner");
+    router.replace("/");  // 👈 va al index (Paso 1 de 11)
   };
 
   return (
     <View style={styles.root}>
-      {/* Fondo con puntos estilo scanner */}
-      <View style={styles.bgGrid} pointerEvents="none" />
       <View style={styles.bgGlow} pointerEvents="none" />
-
       <KeyboardAvoidingView
         style={styles.keyboardView}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -38,10 +29,7 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: "#0B1020",
-  },
+  root: { flex: 1, backgroundColor: "#0B1020" },
   bgGlow: {
     position: "absolute",
     width: 340,
@@ -51,16 +39,7 @@ const styles = StyleSheet.create({
     top: -80,
     alignSelf: "center",
   },
-  bgGrid: {
-    position: "absolute",
-    inset: 0,
-    opacity: 0.03,
-    // grid decorativo via border
-    borderWidth: 0,
-  },
-  keyboardView: {
-    flex: 1,
-  },
+  keyboardView: { flex: 1 },
   scroll: {
     flexGrow: 1,
     justifyContent: "center",

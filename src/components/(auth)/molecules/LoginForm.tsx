@@ -33,7 +33,6 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
       <PrimaryButton
         label="Entrar"
         onPress={onSubmit}
-        disabled={!email || !password}
         style={styles.button}
       />
     </View>

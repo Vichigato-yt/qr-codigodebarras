@@ -53,7 +53,6 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
       <PrimaryButton
         label="Crear cuenta"
         onPress={onSubmit}
-        disabled={!isValid}
         style={styles.button}
       />
     </View>

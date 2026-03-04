@@ -12,7 +12,7 @@ import {
 export default function RegisterScreen() {
   const handleAuth = () => {
     // TODO: conectar lógica real de auth
-    router.replace("./scanner");
+    router.replace("./index");
   };
 
   return (
