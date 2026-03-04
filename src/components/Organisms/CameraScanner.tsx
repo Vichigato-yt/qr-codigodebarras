@@ -8,6 +8,7 @@ import { useScannerAudio } from "@/src/lib/hooks/useScannerAudio";
 import { useScanAnimation } from "@/src/lib/hooks/useScanAnimation";
 import { useScanState } from "@/src/lib/hooks/useScanState";
 import React from "react";
+import * as Haptics from "expo-haptics";
 
 type CameraScannerProps = {
   isPaused?: boolean;
