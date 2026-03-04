@@ -204,7 +204,17 @@ export function CameraScanner({ isPaused = false, onDataDetected, onScanError }:
         style={StyleSheet.absoluteFillObject}
         facing="back"
         onBarcodeScanned={isPaused ? undefined : handleBarcodeScanned}
-        barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
+        barcodeScannerSettings={{
+          barcodeTypes: [
+            "qr",
+            "ean13",
+            "ean8",
+            "upc_a",
+            "upc_e",
+            "code39",
+            "code128",
+          ],
+        }}
       />
 
       <Animated.View
