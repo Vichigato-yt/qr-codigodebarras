@@ -1,6 +1,6 @@
 // src/app/(auth)/Register.tsx
 
-import { AuthCard } from "@/components/organisms/AuthCard";
+import { AuthCard } from "@/components/(auth)/organisms/AuthCard";
 import { router } from "expo-router";
 import React from "react";
 import {
@@ -14,7 +14,7 @@ import {
 export default function RegisterScreen() {
   const handleAuth = () => {
     // TODO: conectar lógica real de auth
-    router.replace("/(checkout)/scanner");
+    router.replace("./scanner");
   };
 
   return (

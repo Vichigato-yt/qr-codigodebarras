@@ -9,12 +9,12 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { AuthCard } from "@/components/organisms/AuthCard";
+import { AuthCard } from "@/components/(auth)/organisms/AuthCard";
 
 export default function LoginScreen() {
   const handleAuth = () => {
     // TODO: conectar lógica real de auth
-    router.replace("/(checkout)/scanner");
+    router.replace("./scanner");
   };
 
   return (
