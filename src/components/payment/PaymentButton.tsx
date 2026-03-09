@@ -64,7 +64,7 @@ export function PaymentButton({
     setStatus("loading");
 
     try {
-      const { paymentIntent, ephemeralKey, customer, publishableKey } =
+      const { paymentIntent, ephemeralKey, customer } =
         await fetchPaymentSheetParams(amount, currency);
 
       const { error: initError } = await initPaymentSheet({
