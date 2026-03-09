@@ -5,11 +5,11 @@ export default function Index() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.badge}>
-        <Text style={styles.badgeText}>Paso 1 de 11</Text>
+        <Text style={styles.badgeText}>Paso 1 de 12</Text>
       </View>
 
       <Text style={styles.title}>Introducción a Códigos QR y Pagos</Text>
-      <Text style={styles.subtitle}>Expo Camera · React Flow · Payment SDKs</Text>
+      <Text style={styles.subtitle}>Expo Camera · Stripe SDK · Payment Flows</Text>
 
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>Contexto</Text>
@@ -24,8 +24,8 @@ export default function Index() {
         <Text style={styles.sectionTitle}>Objetivo</Text>
         <Text style={styles.paragraph}>
           Esta guía te enseña a integrar visión artificial y flujos de pago con
-          una estética premium y una arquitectura robusta para convertir tu app en
-          una herramienta profesional de negocio.
+          Stripe usando una estética premium y una arquitectura robusta para
+          convertir tu app en una herramienta profesional de negocio.
         </Text>
       </View>
 
@@ -53,7 +53,21 @@ export default function Index() {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Paso 2 de 11</Text>
+        <Text style={styles.sectionTitle}>Integración Stripe</Text>
+        <Text style={styles.paragraph}>
+          Desde el paso 10 incorporamos Stripe como pasarela de pago. Usamos la
+          API demo de Stripe para crear PaymentIntents y el SDK oficial
+          @stripe/stripe-react-native para presentar el PaymentSheet nativo.
+        </Text>
+        <View style={styles.chipRow}>
+          <View style={styles.chip}><Text style={styles.chipText}>PaymentSheet</Text></View>
+          <View style={styles.chip}><Text style={styles.chipText}>Demo API</Text></View>
+          <View style={styles.chip}><Text style={styles.chipText}>Test mode</Text></View>
+        </View>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.sectionTitle}>Paso 2 de 12</Text>
         <Text style={styles.paragraph}>
           Configuraremos la cámara en Expo con permisos robustos y una pantalla
           base de escaneo lista para producción.
@@ -64,8 +78,8 @@ export default function Index() {
           </Pressable>
         </Link>
         <Text style={styles.note}>
-          Nota: cambios de permisos en app.json requieren nuevo Development Build
-          con EAS para reflejarse fuera de Expo Go.
+          Nota: escanea SKU-9920, SKU-1101 o SKU-2007 para abrir el flujo de pago
+          con Stripe. Usa la tarjeta de prueba 4242 4242 4242 4242.
         </Text>
       </View>
     </ScrollView>
@@ -147,5 +161,24 @@ const styles = StyleSheet.create({
     color: "#9FB3D1",
     fontSize: 12,
     lineHeight: 18,
+  },
+  chipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    marginTop: 4,
+  },
+  chip: {
+    backgroundColor: "#1F2A44",
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: "#283655",
+  },
+  chipText: {
+    color: "#9FB3D1",
+    fontSize: 11,
+    fontWeight: "600",
   },
 });
