@@ -1,18 +1,23 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
+import { useRouter } from "expo-router";
 
 import { CameraScanner } from "@/src/components/scanner/CameraScanner";
 
+/** Products keyed by barcode / QR code value. Price is stored in cents. */
+const LOCAL_PRODUCTS: Record<string, { name: string; price: number; currency: string }> = {
+  "SKU-9920": { name: "Café en grano 500g",   price: 1290, currency: "usd" },
+  "SKU-1101": { name: "Leche deslactosada 1L", price:  165, currency: "usd" },
+  "SKU-2007": { name: "Galletas integrales",   price:  240, currency: "usd" },
+};
+
 export default function ScannerScreen() {
+  const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastCode, setLastCode] = useState<string | null>(null);
   const processingRef = useRef(false);
 
-  const localProductMap = useMemo(() => ({
-    "SKU-9920": { name: "Café en grano 500g", price: "$12.90" },
-    "SKU-1101": { name: "Leche deslactosada 1L", price: "$1.65" },
-    "SKU-2007": { name: "Galletas integrales", price: "$2.40" },
-  }), []);
+  const localProductMap = useMemo(() => LOCAL_PRODUCTS, []);
 
   const handleDataDetected = useCallback(async (data: string) => {
     if (processingRef.current) {
@@ -36,13 +41,19 @@ export default function ScannerScreen() {
         return;
       }
 
-      const localProduct = localProductMap[code as keyof typeof localProductMap];
+      const localProduct = localProductMap[code];
 
       if (localProduct) {
-        Alert.alert(
-          "Producto encontrado",
-          `${localProduct.name}\nPrecio: ${localProduct.price}\nCódigo: ${code}`
-        );
+        // Navigate to the payment screen with product details.
+        router.push({
+          pathname: "/payment",
+          params: {
+            code,
+            name:     localProduct.name,
+            price:    String(localProduct.price),
+            currency: localProduct.currency,
+          },
+        });
         return;
       }
 
@@ -52,7 +63,7 @@ export default function ScannerScreen() {
       processingRef.current = false;
       setIsProcessing(false);
     }
-  }, [localProductMap]);
+  }, [localProductMap, router]);
 
   const handleScanError = useCallback((error: Error) => {
     if (error.message === "EMPTY_SCAN") {
