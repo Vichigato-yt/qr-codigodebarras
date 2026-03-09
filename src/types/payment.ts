@@ -10,7 +10,8 @@ export type PaymentSheetParams = {
   paymentIntent: string;
   ephemeralKey: string;
   customer: string;
-  publishableKey: string;
+  /** Returned by some backends; the demo backend does not include this field. */
+  publishableKey?: string;
 };
 
 export type Product = {
