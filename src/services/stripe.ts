@@ -1,10 +1,13 @@
 import type { PaymentSheetParams } from "../types/payment";
 
 /**
- * Stripe Demo backend — Stripe's publicly available test server.
- * Replace with your own backend endpoint in production.
+ * Stripe backend endpoint.
+ * Configurable via environment variable EXPO_PUBLIC_STRIPE_BACKEND.
+ * Default: Stripe's demo backend (requires manual setup).
  */
-const STRIPE_DEMO_BACKEND = "https://stripe-mobile-payment-sheet.glitch.me";
+const STRIPE_BACKEND =
+  process.env.EXPO_PUBLIC_STRIPE_BACKEND ||
+  "https://stripe-mobile-payment-sheet.glitch.me";
 
 /**
  * Fetch PaymentIntent params from the demo backend.
@@ -16,7 +19,7 @@ export async function fetchPaymentSheetParams(
   amount: number,
   currency: string = "usd"
 ): Promise<PaymentSheetParams> {
-  const response = await fetch(`${STRIPE_DEMO_BACKEND}/checkout`, {
+  const response = await fetch(`${STRIPE_BACKEND}/checkout`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ amount, currency }),
