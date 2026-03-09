@@ -13,12 +13,29 @@ type CameraScannerProps = {
 export function CameraScanner({ isPaused = false, onDataDetected, onScanError }: CameraScannerProps) {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanState, setScanState] = useState<"idle" | "success" | "error">("idle");
+  const sameCodeThrottleMs = 2200;
+  const releaseCooldownMs = 700;
 
   const successSoundRef = useRef<Audio.Sound | null>(null);
   const handlingScanRef = useRef(false);
+  const releaseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastAcceptedScanRef = useRef<{ content: string; scannedAt: number } | null>(null);
   const scanLineAnim = useRef(new Animated.Value(0)).current;
   const flashAnim = useRef(new Animated.Value(0)).current;
   const [flashColor, setFlashColor] = useState("#22c55e");
+
+  const releaseScanner = useCallback((delayMs: number) => {
+    if (releaseTimerRef.current) {
+      clearTimeout(releaseTimerRef.current);
+    }
+
+    releaseTimerRef.current = setTimeout(() => {
+      handlingScanRef.current = false;
+      if (!isPaused) {
+        setScanState("idle");
+      }
+    }, delayMs);
+  }, [isPaused]);
 
   useEffect(() => {
     const animation = Animated.loop(
@@ -61,6 +78,11 @@ export function CameraScanner({ isPaused = false, onDataDetected, onScanError }:
 
     return () => {
       mounted = false;
+
+      if (releaseTimerRef.current) {
+        clearTimeout(releaseTimerRef.current);
+        releaseTimerRef.current = null;
+      }
 
       if (successSoundRef.current) {
         successSoundRef.current.unloadAsync();
@@ -111,8 +133,21 @@ export function CameraScanner({ isPaused = false, onDataDetected, onScanError }:
       return;
     }
 
-    handlingScanRef.current = true;
     const content = data?.trim() ?? "";
+
+    const now = Date.now();
+    const lastAcceptedScan = lastAcceptedScanRef.current;
+
+    if (
+      content &&
+      lastAcceptedScan &&
+      lastAcceptedScan.content === content &&
+      now - lastAcceptedScan.scannedAt < sameCodeThrottleMs
+    ) {
+      return;
+    }
+
+    handlingScanRef.current = true;
 
     if (!content) {
       setScanState("error");
@@ -121,14 +156,14 @@ export function CameraScanner({ isPaused = false, onDataDetected, onScanError }:
 
       onScanError?.(new Error("EMPTY_SCAN"));
 
-      setTimeout(() => {
-        handlingScanRef.current = false;
-        if (!isPaused) {
-          setScanState("idle");
-        }
-      }, 450);
+      releaseScanner(450);
       return;
     }
+
+    lastAcceptedScanRef.current = {
+      content,
+      scannedAt: now,
+    };
 
     setScanState("success");
     triggerFlash("#22c55e");
@@ -151,12 +186,9 @@ export function CameraScanner({ isPaused = false, onDataDetected, onScanError }:
         onScanError?.(new Error("SCAN_ACTION_FAILED"));
       }
     } finally {
-      handlingScanRef.current = false;
-      if (!isPaused) {
-        setScanState("idle");
-      }
+      releaseScanner(releaseCooldownMs);
     }
-  }, [isPaused, onDataDetected, onScanError, playSuccessBeep, triggerFlash]);
+  }, [isPaused, onDataDetected, onScanError, playSuccessBeep, releaseScanner, triggerFlash]);
 
   const uiState = useMemo(() => {
     if (scanState === "success") {
@@ -204,7 +236,17 @@ export function CameraScanner({ isPaused = false, onDataDetected, onScanError }:
         style={StyleSheet.absoluteFillObject}
         facing="back"
         onBarcodeScanned={isPaused ? undefined : handleBarcodeScanned}
-        barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
+        barcodeScannerSettings={{
+          barcodeTypes: [
+            "qr",
+            "ean13",
+            "ean8",
+            "upc_a",
+            "upc_e",
+            "code39",
+            "code128",
+          ],
+        }}
       />
 
       <Animated.View
