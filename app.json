@@ -12,7 +12,6 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.vichigato.qrcodigodebarras",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -24,7 +23,8 @@
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
-      ]
+      ],
+      "package": "com.vichigato.qrcodigodebarras"
     },
     "web": {
       "output": "static",
