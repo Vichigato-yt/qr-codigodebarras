@@ -1,5 +1,42 @@
+import Constants from "expo-constants";
 import { Stack } from "expo-router";
-import { StripeProvider } from "@stripe/stripe-react-native";
+import { type ComponentType, type ReactNode } from "react";
+
+type StripeProviderProps = {
+  children: ReactNode;
+  publishableKey?: string;
+  merchantIdentifier?: string;
+};
+
+const FallbackStripeProvider: ComponentType<StripeProviderProps> = ({ children }) => {
+  return <>{children}</>;
+};
+
+function isExpoGo(): boolean {
+  const executionEnvironment = (Constants as { executionEnvironment?: string })
+    .executionEnvironment;
+  const appOwnership = (Constants as { appOwnership?: string }).appOwnership;
+
+  return executionEnvironment === "storeClient" || appOwnership === "expo";
+}
+
+function getStripeProvider(): ComponentType<StripeProviderProps> {
+  if (isExpoGo()) {
+    return FallbackStripeProvider;
+  }
+
+  try {
+    const stripeModule = require("@stripe/stripe-react-native") as {
+      StripeProvider?: ComponentType<StripeProviderProps>;
+    };
+
+    return stripeModule.StripeProvider ?? FallbackStripeProvider;
+  } catch {
+    return FallbackStripeProvider;
+  }
+}
+
+const StripeProvider = getStripeProvider();
 
 /**
  * Stripe publishable key for the demo/test environment.
@@ -13,7 +50,7 @@ export default function RootLayout() {
       publishableKey={STRIPE_PUBLISHABLE_KEY}
       merchantIdentifier="merchant.com.qrcodigodebarras"
     >
-      <Stack />
+      <Stack screenOptions={{ headerShown: false }}/>
     </StripeProvider>
   );
 }

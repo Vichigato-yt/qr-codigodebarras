@@ -1,8 +1,80 @@
+import Constants from "expo-constants";
 import { useCallback, useState } from "react";
-import { useStripe } from "@stripe/stripe-react-native";
 
 import { fetchPaymentSheetParams } from "../services/stripe";
 import type { PaymentResult, PaymentStatus } from "../types/payment";
+
+type StripeSheetError = {
+  code?: string;
+  message: string;
+};
+
+type StripeSheetResult = {
+  error?: StripeSheetError | null;
+};
+
+type StripeHooks = {
+  initPaymentSheet: (params: unknown) => Promise<StripeSheetResult>;
+  presentPaymentSheet: () => Promise<StripeSheetResult>;
+};
+
+function isExpoGo(): boolean {
+  const executionEnvironment = (Constants as { executionEnvironment?: string })
+    .executionEnvironment;
+  const appOwnership = (Constants as { appOwnership?: string }).appOwnership;
+
+  return executionEnvironment === "storeClient" || appOwnership === "expo";
+}
+
+function useSafeStripe(): StripeHooks {
+  if (isExpoGo()) {
+    return {
+      initPaymentSheet: async () => ({
+        error: {
+          code: "Unavailable",
+          message:
+            "Stripe no está disponible en Expo Go. Usa un Development Build para pagos nativos.",
+        },
+      }),
+      presentPaymentSheet: async () => ({
+        error: {
+          code: "Unavailable",
+          message:
+            "Stripe no está disponible en Expo Go. Usa un Development Build para pagos nativos.",
+        },
+      }),
+    };
+  }
+
+  try {
+    const stripeModule = require("@stripe/stripe-react-native") as {
+      useStripe?: () => StripeHooks;
+    };
+
+    if (stripeModule.useStripe) {
+      return stripeModule.useStripe();
+    }
+  } catch {
+    // Native Stripe module not available (e.g., Expo Go).
+  }
+
+  return {
+    initPaymentSheet: async () => ({
+      error: {
+        code: "Unavailable",
+        message:
+          "Stripe no está disponible en este binario. Usa un Development Build para pagos nativos.",
+      },
+    }),
+    presentPaymentSheet: async () => ({
+      error: {
+        code: "Unavailable",
+        message:
+          "Stripe no está disponible en este binario. Usa un Development Build para pagos nativos.",
+      },
+    }),
+  };
+}
 
 export type UseStripePaymentOptions = {
   /** Payment amount in the smallest currency unit (e.g. cents for USD). */
@@ -46,7 +118,7 @@ export function useStripePayment({
   merchantName = "Mi Tienda",
   onPaymentComplete,
 }: UseStripePaymentOptions): UseStripePaymentReturn {
-  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const { initPaymentSheet, presentPaymentSheet } = useSafeStripe();
   const [status, setStatus] = useState<PaymentStatus>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
