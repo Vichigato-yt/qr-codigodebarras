@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { StripeCheckoutSheet } from "@/src/components/payment/StripeCheckoutSheet";
 import type { PaymentResult } from "@/src/types/payment";

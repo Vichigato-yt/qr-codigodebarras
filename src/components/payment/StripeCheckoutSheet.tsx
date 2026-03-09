@@ -3,7 +3,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  View,
   type StyleProp,
   type ViewStyle,
 } from "react-native";
