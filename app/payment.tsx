@@ -14,6 +14,9 @@ import type { PaymentResult } from "@/src/types/payment";
  *   - `code`    Original scanned barcode / QR data
  *   - `currency` Optional ISO-4217 code (default "usd")
  */
+/** Delay (ms) before navigating back after a successful payment. */
+const SUCCESS_REDIRECT_DELAY_MS = 2200;
+
 export default function PaymentScreen() {
   const router = useRouter();
   const { name, price, code, currency } = useLocalSearchParams<{
@@ -29,7 +32,7 @@ export default function PaymentScreen() {
   const handlePaymentComplete = useCallback(
     (result: PaymentResult) => {
       if (result.status === "success") {
-        setTimeout(() => router.back(), 2200);
+        setTimeout(() => router.back(), SUCCESS_REDIRECT_DELAY_MS);
       }
     },
     [router]

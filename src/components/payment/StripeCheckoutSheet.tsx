@@ -6,19 +6,10 @@ import {
   type StyleProp,
   type ViewStyle,
 } from "react-native";
-import { StripeProvider } from "@stripe/stripe-react-native";
 
 import { PaymentButton } from "./PaymentButton";
 import { PaymentStatusCard } from "./PaymentStatusCard";
 import type { PaymentResult } from "../../types/payment";
-
-/**
- * Stripe publishable key for the demo environment.
- * The demo backend returns its own key, but we need one to initialise
- * StripeProvider before the first fetch.  Swap this for your live key in production.
- */
-const DEMO_PUBLISHABLE_KEY =
-  "pk_test_TYooMQauvdEDq54NiTphI7jx";
 
 export type StripeCheckoutSheetProps = {
   /** Payment amount in the smallest currency unit (e.g. cents for USD). */
@@ -27,8 +18,6 @@ export type StripeCheckoutSheetProps = {
   currency?: string;
   /** Name displayed in the Stripe payment sheet header. Default: "Mi Tienda". */
   merchantName?: string;
-  /** Stripe publishable key. Defaults to the Demo test key. */
-  publishableKey?: string;
   /** Optional product name shown in the status card. */
   productName?: string;
   /** Called when any payment result is available. */
@@ -42,9 +31,9 @@ export type StripeCheckoutSheetProps = {
 /**
  * All-in-one Stripe checkout component.
  *
- * Wraps `StripeProvider`, a `PaymentButton`, and a `PaymentStatusCard`
- * so consumers only need to pass `amount` (and optional props) to get
- * a fully functional payment flow.
+ * Composes a `PaymentButton` and a `PaymentStatusCard` into a scrollable
+ * layout. Requires `StripeProvider` to be mounted higher in the tree
+ * (already done in `app/_layout.tsx`).
  *
  * @example
  * <StripeCheckoutSheet
@@ -61,7 +50,6 @@ export function StripeCheckoutSheet({
   amount,
   currency = "usd",
   merchantName = "Mi Tienda",
-  publishableKey = DEMO_PUBLISHABLE_KEY,
   productName,
   onPaymentComplete,
   children,
@@ -78,38 +66,33 @@ export function StripeCheckoutSheet({
   );
 
   return (
-    <StripeProvider
-      publishableKey={publishableKey}
-      merchantIdentifier="merchant.com.qrcodigodebarras"
+    <ScrollView
+      style={[styles.container, style]}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
     >
-      <ScrollView
-        style={[styles.container, style]}
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-      >
-        {children}
+      {children}
 
-        <PaymentStatusCard
-          result={result}
-          productName={productName}
-          amount={amount}
-          currency={currency}
-          style={styles.statusCard}
-        />
+      <PaymentStatusCard
+        result={result}
+        productName={productName}
+        amount={amount}
+        currency={currency}
+        style={styles.statusCard}
+      />
 
-        <PaymentButton
-          amount={amount}
-          currency={currency}
-          label={`Pagar ${formatLabel(amount, currency)}`}
-          merchantName={merchantName}
-          onPaymentComplete={handlePaymentComplete}
-          disabled={result?.status === "success"}
-          style={styles.button}
-        />
+      <PaymentButton
+        amount={amount}
+        currency={currency}
+        label={`Pagar ${formatLabel(amount, currency)}`}
+        merchantName={merchantName}
+        onPaymentComplete={handlePaymentComplete}
+        disabled={result?.status === "success"}
+        style={styles.button}
+      />
 
-        <Text style={styles.secureNote}>🔒 Pago seguro con Stripe</Text>
-      </ScrollView>
-    </StripeProvider>
+      <Text style={styles.secureNote}>🔒 Pago seguro con Stripe</Text>
+    </ScrollView>
   );
 }
 

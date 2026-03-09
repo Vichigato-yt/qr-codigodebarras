@@ -91,8 +91,6 @@ export function PaymentButton({
           },
           shapes: { borderRadius: 12, borderWidth: 1 },
         },
-        // Required by newer Stripe SDK versions
-        intentConfiguration: undefined,
       });
 
       if (initError) {
