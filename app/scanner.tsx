@@ -1,11 +1,13 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
 
+import { CheckoutModal, type CheckoutProduct } from "@/src/components/payment/CheckoutModal";
 import { CameraScanner } from "@/src/components/scanner/CameraScanner";
 
 export default function ScannerScreen() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastCode, setLastCode] = useState<string | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<CheckoutProduct | null>(null);
   const processingRef = useRef(false);
 
   const localProductMap = useMemo(() => ({
@@ -39,10 +41,7 @@ export default function ScannerScreen() {
       const localProduct = localProductMap[code as keyof typeof localProductMap];
 
       if (localProduct) {
-        Alert.alert(
-          "Producto encontrado",
-          `${localProduct.name}\nPrecio: ${localProduct.price}\nCódigo: ${code}`
-        );
+        setSelectedProduct({ sku: code, ...localProduct });
         return;
       }
 
@@ -63,10 +62,19 @@ export default function ScannerScreen() {
     Alert.alert("Error", error.message || "No se pudo procesar el código escaneado.");
   }, []);
 
+  const handleCloseCheckout = useCallback(() => {
+    setSelectedProduct(null);
+  }, []);
+
+  const handlePaymentSuccess = useCallback((product: CheckoutProduct) => {
+    setSelectedProduct(null);
+    Alert.alert("¡Pago exitoso!", `Gracias por tu compra de ${product.name}.`);
+  }, []);
+
   return (
     <View style={styles.screen}>
       <CameraScanner
-        isPaused={isProcessing}
+        isPaused={isProcessing || selectedProduct !== null}
         onDataDetected={handleDataDetected}
         onScanError={handleScanError}
       />
@@ -75,6 +83,12 @@ export default function ScannerScreen() {
         <Text style={styles.bridgeTitle}>Observer activo</Text>
         <Text style={styles.bridgeText}>Último dato emitido: {lastCode ?? "Sin lecturas"}</Text>
       </View>
+
+      <CheckoutModal
+        product={selectedProduct}
+        onClose={handleCloseCheckout}
+        onPaymentSuccess={handlePaymentSuccess}
+      />
     </View>
   );
 }

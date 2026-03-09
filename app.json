@@ -28,6 +28,13 @@
     "plugins": [
       "expo-router",
       [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.qrcodigodebarras",
+          "enableGooglePay": false
+        }
+      ],
+      [
         "expo-camera",
         {
           "recordAudioPermission": false,
