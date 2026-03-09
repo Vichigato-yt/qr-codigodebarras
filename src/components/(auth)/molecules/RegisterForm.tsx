@@ -13,8 +13,6 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
 
-  const isValid = !!name && !!email && !!phone && !!password;
-
   return (
     <View style={styles.container}>
       <InputField
@@ -53,7 +51,6 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
       <PrimaryButton
         label="Crear cuenta"
         onPress={onSubmit}
-        style={styles.button}
       />
     </View>
   );
@@ -62,8 +59,5 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
 const styles = StyleSheet.create({
   container: {
     gap: 16,
-  },
-  button: {
-    marginTop: 4,
   },
 });

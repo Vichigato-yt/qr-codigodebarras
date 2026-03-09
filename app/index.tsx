@@ -1,7 +1,7 @@
 // app/index.tsx
+import { AuthCard } from "@/src/components/(auth)/organisms/AuthCard";
 import React, { useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from "react-native";
-import { AuthCard } from "@/src/components/(auth)/organisms/AuthCard";
 import Home from "./home";
 
 export default function Index() {
@@ -44,8 +44,9 @@ const styles = StyleSheet.create({
   keyboardView: { flex: 1 },
   scroll: {
     flexGrow: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     paddingHorizontal: 20,
-    paddingVertical: 48,
+    paddingTop: 60,
+    paddingBottom: 80,
   },
 });

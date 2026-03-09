@@ -33,7 +33,6 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
       <PrimaryButton
         label="Entrar"
         onPress={onSubmit}
-        style={styles.button}
       />
     </View>
   );
@@ -42,8 +41,5 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
 const styles = StyleSheet.create({
   container: {
     gap: 16,
-  },
-  button: {
-    marginTop: 4,
   },
 });
