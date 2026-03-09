@@ -61,7 +61,8 @@ export const NotificationAdapter = {
     const resolvedProjectId =
       options.projectId ??
       Constants.expoConfig?.extra?.eas?.projectId ??
-      process.env.EXPO_PUBLIC_EAS_PROJECT_ID;
+      process.env.EXPO_PUBLIC_EAS_PROJECT_ID ??
+      process.env.EXPO_PUBLIC_PROJECT_ID;
 
     if (!resolvedProjectId) {
       console.warn(
