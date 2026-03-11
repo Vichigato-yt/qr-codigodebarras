@@ -25,6 +25,15 @@ export async function fetchPaymentSheetParams(
   amount: number,
   currency: string = "usd"
 ): Promise<PaymentSheetParams> {
+  if (!Number.isInteger(amount) || amount <= 0) {
+    throw new Error("El monto debe ser un entero positivo en la unidad menor de la moneda.");
+  }
+
+  const normalizedCurrency = currency.toLowerCase().trim();
+  if (!/^[a-z]{3}$/.test(normalizedCurrency)) {
+    throw new Error("La moneda debe ser un codigo ISO 4217 de 3 letras, por ejemplo 'usd'.");
+  }
+
   const checkoutUrl = buildBackendUrl("/checkout");
   let response: Response;
 
@@ -32,7 +41,7 @@ export async function fetchPaymentSheetParams(
     response = await fetch(checkoutUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount, currency }),
+      body: JSON.stringify({ amount, currency: normalizedCurrency }),
     });
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
@@ -42,13 +51,29 @@ export async function fetchPaymentSheetParams(
   }
 
   if (!response.ok) {
-    throw new Error(`Demo backend error (${checkoutUrl}): ${response.status}`);
+    let detail = `status ${response.status}`;
+
+    try {
+      const payload = (await response.json()) as { error?: unknown };
+      if (typeof payload?.error === "string" && payload.error.length > 0) {
+        detail = payload.error;
+      }
+    } catch {
+      // Keep HTTP status as fallback detail.
+    }
+
+    throw new Error(`Error del backend de Stripe (${checkoutUrl}): ${detail}`);
   }
 
   const data = (await response.json()) as PaymentSheetParams;
 
-  if (!data.paymentIntent || !data.publishableKey) {
-    throw new Error("Invalid response from demo backend");
+  if (
+    typeof data.paymentIntent !== "string" ||
+    typeof data.ephemeralKey !== "string" ||
+    typeof data.customer !== "string" ||
+    typeof data.publishableKey !== "string"
+  ) {
+    throw new Error("Respuesta invalida del backend de Stripe.");
   }
 
   return data;

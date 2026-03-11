@@ -23,29 +23,54 @@ if (!STRIPE_SECRET_KEY || !STRIPE_PUBLISHABLE_KEY) {
   process.exit(1);
 }
 
-/**
- * Create a Stripe PaymentIntent via REST API
- */
-async function createPaymentIntent(amount, currency) {
-  const params = new URLSearchParams();
-  params.append("amount", amount);
-  params.append("currency", currency);
-  params.append("automatic_payment_methods[enabled]", "true");
+const STRIPE_API_BASE = "https://api.stripe.com/v1";
+const STRIPE_API_VERSION = process.env.STRIPE_API_VERSION || "2023-10-16";
 
-  const response = await fetch("https://api.stripe.com/v1/payment_intents", {
+async function stripeRequest(path, params, extraHeaders = {}) {
+  const response = await fetch(`${STRIPE_API_BASE}${path}`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${STRIPE_SECRET_KEY}`,
       "Content-Type": "application/x-www-form-urlencoded",
+      ...extraHeaders,
     },
     body: params.toString(),
   });
 
+  const json = await response.json();
+
   if (!response.ok) {
-    throw new Error(`Stripe API error: ${response.status}`);
+    const detail =
+      typeof json?.error?.message === "string"
+        ? json.error.message
+        : `HTTP ${response.status}`;
+    throw new Error(`Stripe API error: ${detail}`);
   }
 
-  return response.json();
+  return json;
+}
+
+async function createCustomer() {
+  return stripeRequest("/customers", new URLSearchParams());
+}
+
+async function createEphemeralKey(customerId) {
+  const params = new URLSearchParams();
+  params.append("customer", customerId);
+
+  return stripeRequest("/ephemeral_keys", params, {
+    "Stripe-Version": STRIPE_API_VERSION,
+  });
+}
+
+async function createPaymentIntent(amount, currency, customerId) {
+  const params = new URLSearchParams();
+  params.append("amount", String(amount));
+  params.append("currency", currency);
+  params.append("customer", customerId);
+  params.append("automatic_payment_methods[enabled]", "true");
+
+  return stripeRequest("/payment_intents", params);
 }
 
 const requestListener = async (req, res) => {
@@ -78,22 +103,44 @@ const requestListener = async (req, res) => {
     });
     req.on("end", async () => {
       try {
-        const data = JSON.parse(body);
+        const data = body ? JSON.parse(body) : {};
         const { amount, currency = "usd" } = data;
 
-        if (!amount || typeof amount !== "number") {
+        if (
+          typeof amount !== "number" ||
+          !Number.isInteger(amount) ||
+          amount <= 0
+        ) {
           res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ error: "Invalid amount" }));
+          res.end(
+            JSON.stringify({
+              error: "Invalid amount. Must be a positive integer in minor units.",
+            })
+          );
           return;
         }
 
-        // Create PaymentIntent
-        const paymentIntent = await createPaymentIntent(amount, currency.toLowerCase());
+        if (typeof currency !== "string" || currency.trim().length !== 3) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Invalid currency. Use ISO 4217 code." }));
+          return;
+        }
+
+        const normalizedCurrency = currency.toLowerCase();
+        const customer = await createCustomer();
+        const ephemeralKey = await createEphemeralKey(customer.id);
+        const paymentIntent = await createPaymentIntent(
+          amount,
+          normalizedCurrency,
+          customer.id
+        );
 
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(
           JSON.stringify({
             paymentIntent: paymentIntent.client_secret,
+            ephemeralKey: ephemeralKey.secret,
+            customer: customer.id,
             publishableKey: STRIPE_PUBLISHABLE_KEY,
           })
         );
@@ -102,7 +149,10 @@ const requestListener = async (req, res) => {
         res.writeHead(500, { "Content-Type": "application/json" });
         res.end(
           JSON.stringify({
-            error: error instanceof Error ? error.message : "Unknown error",
+            error:
+              error instanceof Error
+                ? error.message
+                : "Unexpected server error while creating payment sheet params.",
           })
         );
       }
