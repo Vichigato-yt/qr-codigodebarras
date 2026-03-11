@@ -1,19 +1,19 @@
+import { useRouter } from "expo-router";
+import { BookMarked, ScanLine } from "lucide-react-native";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
 
 import { CameraScanner } from "@/src/components/Organisms/CameraScanner";
+import { READER_INFO, SKU_CATALOG_MAP } from "@/src/data/sku-catalog";
 import React from "react";
 
 export default function ScannerScreen() {
+  const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastCode, setLastCode] = useState<string | null>(null);
   const processingRef = useRef(false);
 
-  const localProductMap = useMemo(() => ({
-    "SKU-9920": { name: "Café en grano 500g", price: "$12.90" },
-    "SKU-1101": { name: "Leche deslactosada 1L", price: "$1.65" },
-    "SKU-2007": { name: "Galletas integrales", price: "$2.40" },
-  }), []);
+  const localProductMap = useMemo(() => SKU_CATALOG_MAP, []);
 
   const handleDataDetected = useCallback(async (data: string) => {
     if (processingRef.current) {
@@ -37,13 +37,19 @@ export default function ScannerScreen() {
         return;
       }
 
-      const localProduct = localProductMap[code as keyof typeof localProductMap];
+      const localProduct = localProductMap[code];
 
       if (localProduct) {
-        Alert.alert(
-          "Producto encontrado",
-          `${localProduct.name}\nPrecio: ${localProduct.price}\nCódigo: ${code}`
-        );
+        // Navigate to the payment screen with product details.
+        router.push({
+          pathname: "/payment",
+          params: {
+            code,
+            name:     localProduct.name,
+            price:    String(localProduct.price),
+            currency: localProduct.currency,
+          },
+        });
         return;
       }
 
@@ -53,7 +59,7 @@ export default function ScannerScreen() {
       processingRef.current = false;
       setIsProcessing(false);
     }
-  }, [localProductMap]);
+  }, [localProductMap, router]);
 
   const handleScanError = useCallback((error: Error) => {
     if (error.message === "EMPTY_SCAN") {
@@ -70,11 +76,24 @@ export default function ScannerScreen() {
         isPaused={isProcessing}
         onDataDetected={handleDataDetected}
         onScanError={handleScanError}
+        supportedTypes={READER_INFO.supportedTypes}
       />
 
-      <View style={styles.bridgeBadge}>
-        <Text style={styles.bridgeTitle}>Observer activo</Text>
-        <Text style={styles.bridgeText}>Último dato emitido: {lastCode ?? "Sin lecturas"}</Text>
+      <View style={styles.headerPanel}>
+        <View style={styles.row}>
+          <ScanLine size={16} color="#d9e8ff" />
+          <Text style={styles.headerTitle}>Escaner de productos</Text>
+        </View>
+        <Text style={styles.headerSubtitle}>Alinea el codigo dentro del marco para detectar el articulo.</Text>
+        <View style={styles.rowHint}>
+          <BookMarked size={14} color="#9fb3d1" />
+          <Text style={styles.hintText}>{READER_INFO.helperText}</Text>
+        </View>
+      </View>
+
+      <View style={styles.footerPanel}>
+        <Text style={styles.footerLabel}>Ultima lectura</Text>
+        <Text style={styles.footerValue}>{lastCode ?? "Aun no hay lecturas"}</Text>
       </View>
     </View>
   );
@@ -85,25 +104,65 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#000",
   },
-  bridgeBadge: {
+  headerPanel: {
+    position: "absolute",
+    left: 16,
+    right: 16,
+    top: 56,
+    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    backgroundColor: "rgba(8,11,19,0.84)",
+    borderWidth: 1,
+    borderColor: "#2c3b5d",
+  },
+  headerTitle: {
+    color: "#f7f9fd",
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  headerSubtitle: {
+    marginTop: 4,
+    color: "#b5c5e0",
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+  },
+  rowHint: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 8,
+  },
+  hintText: {
+    flex: 1,
+    color: "#9fb3d1",
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  footerPanel: {
     position: "absolute",
     left: 16,
     right: 16,
     bottom: 22,
     borderRadius: 12,
     padding: 12,
-    backgroundColor: "rgba(10,15,29,0.92)",
+    backgroundColor: "rgba(10,15,29,0.88)",
     borderWidth: 1,
     borderColor: "#25324D",
   },
-  bridgeTitle: {
+  footerLabel: {
     color: "#9FB3D1",
     fontSize: 12,
     fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 0.6,
   },
-  bridgeText: {
+  footerValue: {
     marginTop: 4,
     color: "#F8FAFC",
     fontSize: 13,
