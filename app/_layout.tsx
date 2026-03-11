@@ -1,9 +1,10 @@
 // app/_layout.tsx
-import React, { type ComponentType, type ReactNode } from "react";
 import Constants from "expo-constants";
-import { Stack } from "expo-router";
+import { Stack, useRootNavigationState, useRouter, useSegments } from "expo-router";
+import React, { type ComponentType, type ReactNode } from "react";
 
 // Import and register Stripe background task early in the app lifecycle
+import { AuthProvider, useAuth } from "@/src/lib/modules/auth/AuthProvider";
 import "../src/stripe-task-manager";
 
 type StripeProviderProps = {
@@ -49,13 +50,45 @@ const StripeProvider = getStripeProvider();
  */
 const STRIPE_PUBLISHABLE_KEY = "pk_test_51T9BAM2dY7yEhpcTllfcWGrDHuvRpewbnY9ehXvOID9PJpt78nBKICTs0pln8Tj1b9NUTqq1DSzRqiTRf4sQRVSz009yRT9Fgx";
 
+function AuthGate() {
+  const { session, loading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+  const navigationState = useRootNavigationState();
+
+  React.useEffect(() => {
+    if (loading || !navigationState?.key) {
+      return;
+    }
+
+    const insideAuthGroup = segments[0] === "(auth)";
+
+    if (!session && !insideAuthGroup) {
+      router.replace("/(auth)/Login");
+      return;
+    }
+
+    if (session && insideAuthGroup) {
+      router.replace("/");
+    }
+  }, [loading, navigationState?.key, router, segments, session]);
+
+  if (loading) {
+    return null;
+  }
+
+  return <Stack screenOptions={{ headerShown: false }} />;
+}
+
 export default function RootLayout() {
   return (
     <StripeProvider
       publishableKey={STRIPE_PUBLISHABLE_KEY}
       merchantIdentifier="merchant.com.qrcodigodebarras"
     >
-      <Stack screenOptions={{ headerShown: false }}/>
+      <AuthProvider>
+        <AuthGate />
+      </AuthProvider>
     </StripeProvider>
   );
 }

@@ -1,4 +1,5 @@
-import { AuthCard } from "@/src/components/(auth)/organisms/AuthCard";
+import { AuthForm } from "@/src/components/auth/AuthForm";
+import { useAuth } from "@/src/lib/modules/auth/AuthProvider";
 import { router } from "expo-router";
 import React from "react";
 import {
@@ -10,10 +11,33 @@ import {
 } from "react-native";
 
 export default function RegisterScreen() {
-  const handleAuth = () => {
-    // TODO: conectar lógica real de auth
-    router.replace("./index");
+  const { signUpWithEmail } = useAuth();
+  const [loading, setLoading] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+
+  const handleRegister = async (payload: {
+    name: string;
+    email: string;
+    phone: string;
+    password: string;
+  }) => {
+    try {
+      setLoading(true);
+      setErrorMessage(null);
+      await signUpWithEmail(payload.email, payload.password, {
+        name: payload.name,
+        phone: payload.phone,
+      });
+
+      router.replace("/(auth)/Login");
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "No se pudo crear la cuenta.");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const goToLogin = () => router.replace("/(auth)/Login");
 
   return (
     <View style={styles.root}>
@@ -28,7 +52,17 @@ export default function RegisterScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <AuthCard onAuth={handleAuth} />
+          <AuthForm
+            mode="register"
+            loading={loading}
+            errorMessage={errorMessage}
+            onSwitchMode={(mode) => {
+              if (mode === "login") {
+                goToLogin();
+              }
+            }}
+            onRegister={handleRegister}
+          />
         </ScrollView>
       </KeyboardAvoidingView>
     </View>

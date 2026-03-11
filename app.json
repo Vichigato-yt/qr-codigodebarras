@@ -23,7 +23,8 @@
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
-      ]
+      ],
+      "package": "com.siramong.qrcodigodebarras"
     },
     "web": {
       "output": "static",
@@ -49,12 +50,6 @@
             "backgroundColor": "#000000"
           }
         }
-      ],
-      [
-        "@stripe/stripe-react-native",
-        {
-          "merchantIdentifier": "merchant.com.qrcodigodebarras"
-        }
       ]
     ],
     "experiments": {
@@ -64,7 +59,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "dce39bd9-9551-4f4b-a989-7ce893139843"
+        "projectId": "3181bb4c-5be6-466c-b8aa-fe6f17770ac7"
       }
     }
   }

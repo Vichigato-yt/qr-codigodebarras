@@ -1,13 +1,29 @@
 // app/(auth)/Login.tsx
+import { AuthForm } from "@/src/components/auth/AuthForm";
+import { useAuth } from "@/src/lib/modules/auth/AuthProvider";
 import { router } from "expo-router";
 import React from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from "react-native";
-import { AuthCard } from "@/src/components/(auth)/organisms/AuthCard";
 
 export default function LoginScreen() {
-  const handleAuth = () => {
-    router.replace("/");  // 👈 va al index (Paso 1 de 11)
+  const { signInWithEmail } = useAuth();
+  const [loading, setLoading] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+
+  const handleLogin = async (payload: { email: string; password: string }) => {
+    try {
+      setLoading(true);
+      setErrorMessage(null);
+      await signInWithEmail(payload.email, payload.password);
+      router.replace("/");
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "No se pudo iniciar sesion.");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const goToRegister = () => router.replace("/(auth)/Register");
 
   return (
     <View style={styles.root}>
@@ -21,7 +37,17 @@ export default function LoginScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <AuthCard onAuth={handleAuth} />
+          <AuthForm
+            mode="login"
+            loading={loading}
+            errorMessage={errorMessage}
+            onSwitchMode={(mode) => {
+              if (mode === "register") {
+                goToRegister();
+              }
+            }}
+            onLogin={handleLogin}
+          />
         </ScrollView>
       </KeyboardAvoidingView>
     </View>

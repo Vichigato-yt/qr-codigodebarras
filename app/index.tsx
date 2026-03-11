@@ -1,14 +1,21 @@
 // app/index.tsx
-import React from "react";
-import { Barcode, CreditCard, Package, ScanLine } from "lucide-react-native";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useAuth } from "@/src/lib/modules/auth/AuthProvider";
 import { Link } from "expo-router";
+import { Barcode, CreditCard, Package, ScanLine } from "lucide-react-native";
+import React from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { READER_INFO, SKU_CATALOG } from "@/src/data/sku-catalog";
 
 export default function Index() {
+  const { signOut } = useAuth();
+
   return (
     <ScrollView contentContainerStyle={styles.scroll}>
+      <Pressable style={styles.logoutButton} onPress={signOut}>
+        <Text style={styles.logoutButtonText}>Cerrar sesion</Text>
+      </Pressable>
+
       <View style={styles.eyebrowBadge}>
         <Text style={styles.eyebrowText}>POS inteligente</Text>
       </View>
@@ -87,9 +94,25 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "flex-start",
     paddingHorizontal: 20,
+    paddingTop: 56,
     paddingBottom: 40,
     backgroundColor: "#0B1020",
     gap: 14,
+  },
+  logoutButton: {
+    alignSelf: "flex-end",
+    backgroundColor: "#1a2742",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#38558c",
+  },
+  logoutButtonText: {
+    color: "#d4e3ff",
+    fontWeight: "700",
+    fontSize: 12,
+    letterSpacing: 0.2,
   },
   eyebrowBadge: {
     alignSelf: "flex-start",
