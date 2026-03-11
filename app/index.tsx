@@ -1,10 +1,19 @@
-import { Link } from "expo-router";
+// app/index.tsx
+import { AuthCard } from "@/src/components/(auth)/organisms/AuthCard";
+import React, { useState } from "react";
 import { Barcode, CreditCard, Package, ScanLine } from "lucide-react-native";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from "react-native";
 
 import { READER_INFO, SKU_CATALOG } from "@/src/data/sku-catalog";
+import Home from "./home";
 
 export default function Index() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  if (isAuthenticated) {
+    return <Home />;
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.eyebrowBadge}>
@@ -70,8 +79,20 @@ export default function Index() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingTop: 64,
+  root: { flex: 1, backgroundColor: "#0B1020" },
+  bgGlow: {
+    position: "absolute",
+    width: 340,
+    height: 340,
+    borderRadius: 170,
+    backgroundColor: "rgba(34,197,94,0.06)",
+    top: -80,
+    alignSelf: "center",
+  },
+  keyboardView: { flex: 1 },
+  scroll: {
+    flexGrow: 1,
+    justifyContent: "flex-start",
     paddingHorizontal: 20,
     paddingBottom: 40,
     backgroundColor: "#0B1020",
