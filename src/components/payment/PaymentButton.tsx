@@ -1,10 +1,10 @@
 import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  type StyleProp,
-  type ViewStyle,
+    ActivityIndicator,
+    Pressable,
+    StyleSheet,
+    Text,
+    type StyleProp,
+    type ViewStyle,
 } from "react-native";
 
 import { useStripePayment } from "../../hooks/useStripePayment";
@@ -84,7 +84,7 @@ export function PaymentButton({
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: "#2C4C8A",
+    backgroundColor: "#5bb0ff",
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 12,
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     minHeight: 50,
   },
   buttonSuccess: {
-    backgroundColor: "#16603A",
+    backgroundColor: "#27a667",
   },
   buttonDisabled: {
     opacity: 0.6,
@@ -102,8 +102,8 @@ const styles = StyleSheet.create({
     opacity: 0.82,
   },
   label: {
-    color: "#F8FAFC",
+    color: "#04162d",
     fontSize: 15,
-    fontWeight: "700",
+    fontWeight: "800",
   },
 });

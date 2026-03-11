@@ -1,6 +1,6 @@
+import { useRouter } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
-import { useRouter } from "expo-router";
 
 import { CameraScanner } from "@/src/components/scanner/CameraScanner";
 
@@ -82,9 +82,14 @@ export default function ScannerScreen() {
         onScanError={handleScanError}
       />
 
-      <View style={styles.bridgeBadge}>
-        <Text style={styles.bridgeTitle}>Observer activo</Text>
-        <Text style={styles.bridgeText}>Último dato emitido: {lastCode ?? "Sin lecturas"}</Text>
+      <View style={styles.headerPanel}>
+        <Text style={styles.headerTitle}>Escaner de productos</Text>
+        <Text style={styles.headerSubtitle}>Alinea el codigo dentro del marco para detectar el articulo.</Text>
+      </View>
+
+      <View style={styles.footerPanel}>
+        <Text style={styles.footerLabel}>Ultima lectura</Text>
+        <Text style={styles.footerValue}>{lastCode ?? "Aun no hay lecturas"}</Text>
       </View>
     </View>
   );
@@ -95,25 +100,48 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#000",
   },
-  bridgeBadge: {
+  headerPanel: {
+    position: "absolute",
+    left: 16,
+    right: 16,
+    top: 56,
+    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    backgroundColor: "rgba(8,11,19,0.84)",
+    borderWidth: 1,
+    borderColor: "#2c3b5d",
+  },
+  headerTitle: {
+    color: "#f7f9fd",
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  headerSubtitle: {
+    marginTop: 4,
+    color: "#b5c5e0",
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  footerPanel: {
     position: "absolute",
     left: 16,
     right: 16,
     bottom: 22,
     borderRadius: 12,
     padding: 12,
-    backgroundColor: "rgba(10,15,29,0.92)",
+    backgroundColor: "rgba(10,15,29,0.88)",
     borderWidth: 1,
     borderColor: "#25324D",
   },
-  bridgeTitle: {
+  footerLabel: {
     color: "#9FB3D1",
     fontSize: 12,
     fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 0.6,
   },
-  bridgeText: {
+  footerValue: {
     marginTop: 4,
     color: "#F8FAFC",
     fontSize: 13,

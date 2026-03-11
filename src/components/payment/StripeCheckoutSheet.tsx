@@ -1,15 +1,15 @@
 import { useCallback, useState } from "react";
 import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  type StyleProp,
-  type ViewStyle,
+    ScrollView,
+    StyleSheet,
+    Text,
+    type StyleProp,
+    type ViewStyle,
 } from "react-native";
 
+import type { PaymentResult } from "../../types/payment";
 import { PaymentButton } from "./PaymentButton";
 import { PaymentStatusCard } from "./PaymentStatusCard";
-import type { PaymentResult } from "../../types/payment";
 
 export type StripeCheckoutSheetProps = {
   /** Payment amount in the smallest currency unit (e.g. cents for USD). */
@@ -91,7 +91,7 @@ export function StripeCheckoutSheet({
         style={styles.button}
       />
 
-      <Text style={styles.secureNote}>🔒 Pago seguro con Stripe</Text>
+      <Text style={styles.secureNote}>Pago seguro procesado por Stripe</Text>
     </ScrollView>
   );
 }
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    gap: 16,
+    gap: 14,
     paddingBottom: 40,
   },
   statusCard: {
@@ -125,9 +125,9 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   secureNote: {
-    color: "#9FB3D1",
+    color: "#9fb3d1",
     fontSize: 12,
     textAlign: "center",
-    marginTop: 4,
+    marginTop: 2,
   },
 });

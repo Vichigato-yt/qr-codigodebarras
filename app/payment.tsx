@@ -47,9 +47,9 @@ export default function PaymentScreen() {
       onPaymentComplete={handlePaymentComplete}
       style={styles.sheet}
     >
-      {/* ── Order summary ─────────────────────────────────────── */}
       <View style={styles.header}>
-        <Text style={styles.screenTitle}>Resumen del pedido</Text>
+        <Text style={styles.screenTitle}>Checkout</Text>
+        <Text style={styles.screenSubtitle}>Revisa tu orden antes de confirmar el cobro.</Text>
       </View>
 
       <View style={styles.card}>
@@ -75,7 +75,6 @@ export default function PaymentScreen() {
         </View>
       </View>
 
-      {/* Divider before the payment button rendered by StripeCheckoutSheet */}
       <View style={styles.sectionDivider} />
       <Text style={styles.sectionTitle}>Método de pago</Text>
     </StripeCheckoutSheet>
@@ -101,12 +100,18 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: 8,
-    paddingBottom: 4,
+    paddingBottom: 6,
   },
   screenTitle: {
-    fontSize: 22,
+    fontSize: 27,
     fontWeight: "800",
     color: "#F8FAFC",
+  },
+  screenSubtitle: {
+    marginTop: 6,
+    fontSize: 14,
+    color: "#a6badb",
+    lineHeight: 20,
   },
   card: {
     backgroundColor: "#121A2F",
@@ -161,7 +166,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#9FB3D1",
+    color: "#bfd2f0",
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },

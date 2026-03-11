@@ -52,8 +52,8 @@ export function PaymentStatusCard({
   const isSuccess = result.status === "success";
   const isCanceled = result.status === "canceled";
 
-  const cardColor = isSuccess ? "#16603A" : isCanceled ? "#283655" : "#7F1D1D";
-  const borderColor = isSuccess ? "#22c55e" : isCanceled ? "#9FB3D1" : "#ef4444";
+  const cardColor = isSuccess ? "#113b2a" : isCanceled ? "#1a2740" : "#5e1e1f";
+  const borderColor = isSuccess ? "#34d399" : isCanceled ? "#9FB3D1" : "#f87171";
   const icon = isSuccess ? "✓" : isCanceled ? "—" : "✗";
   const title = isSuccess
     ? "Pago exitoso"
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   detail: {
-    color: "#C8D4E5",
+    color: "#dbe8fb",
     fontSize: 13,
     lineHeight: 20,
   },
