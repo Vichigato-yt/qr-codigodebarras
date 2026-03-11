@@ -46,7 +46,12 @@
           }
         }
       ],
-      "@stripe/stripe-react-native"
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.qrcodigodebarras"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
