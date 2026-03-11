@@ -23,6 +23,9 @@ if (!STRIPE_SECRET_KEY || !STRIPE_PUBLISHABLE_KEY) {
   process.exit(1);
 }
 
+console.log(`[Backend] Starting backend with STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY.substring(0, 20)}...`);
+console.log(`[Backend] STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}`);
+
 const STRIPE_API_BASE = "https://api.stripe.com/v1";
 const STRIPE_API_VERSION = process.env.STRIPE_API_VERSION || "2023-10-16";
 
@@ -106,11 +109,14 @@ const requestListener = async (req, res) => {
         const data = body ? JSON.parse(body) : {};
         const { amount, currency = "usd" } = data;
 
+        console.log(`[Backend] POST /checkout - amount=${amount}, currency=${currency}`);
+
         if (
           typeof amount !== "number" ||
           !Number.isInteger(amount) ||
           amount <= 0
         ) {
+          console.warn("[Backend] Invalid amount:", amount);
           res.writeHead(400, { "Content-Type": "application/json" });
           res.end(
             JSON.stringify({
@@ -121,19 +127,28 @@ const requestListener = async (req, res) => {
         }
 
         if (typeof currency !== "string" || currency.trim().length !== 3) {
+          console.warn("[Backend] Invalid currency:", currency);
           res.writeHead(400, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "Invalid currency. Use ISO 4217 code." }));
           return;
         }
 
         const normalizedCurrency = currency.toLowerCase();
+        console.log("[Backend] Creating customer...");
         const customer = await createCustomer();
+        console.log("[Backend] Customer created:", customer.id);
+
+        console.log("[Backend] Creating ephemeral key...");
         const ephemeralKey = await createEphemeralKey(customer.id);
+        console.log("[Backend] Ephemeral key created");
+
+        console.log("[Backend] Creating payment intent...");
         const paymentIntent = await createPaymentIntent(
           amount,
           normalizedCurrency,
           customer.id
         );
+        console.log("[Backend] Payment intent created:", paymentIntent.id);
 
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(
@@ -145,7 +160,7 @@ const requestListener = async (req, res) => {
           })
         );
       } catch (error) {
-        console.error("Error:", error);
+        console.error("[Backend] Error in /checkout:", error);
         res.writeHead(500, { "Content-Type": "application/json" });
         res.end(
           JSON.stringify({

@@ -2,6 +2,9 @@ import Constants from "expo-constants";
 import { Stack } from "expo-router";
 import { type ComponentType, type ReactNode } from "react";
 
+// Import and register Stripe background task early in the app lifecycle
+import "../src/stripe-task-manager";
+
 type StripeProviderProps = {
   children: ReactNode;
   publishableKey?: string;

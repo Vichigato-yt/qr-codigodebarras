@@ -1,13 +1,36 @@
+import { Platform } from "react-native";
 import type { PaymentSheetParams } from "../types/payment";
 
 /**
  * Stripe backend endpoint.
  * Configurable via environment variable EXPO_PUBLIC_STRIPE_BACKEND.
- * Default: Stripe's demo backend (requires manual setup).
+ * 
+ * Platform-specific defaults:
+ * - Android emulator: http://10.0.2.2:3000 (special alias to host)
+ * - iOS simulator: http://localhost:3000
+ * - Web/Android device: Set EXPO_PUBLIC_STRIPE_BACKEND explicitly
  */
-const STRIPE_BACKEND =
-  process.env.EXPO_PUBLIC_STRIPE_BACKEND ||
-  "https://silver-acorn-5xj7qgqjw6727vrw-3000.app.github.dev/";
+function getDefaultBackendUrl(): string {
+  const env = process.env.EXPO_PUBLIC_STRIPE_BACKEND;
+  if (env) {
+    return env;
+  }
+
+  // Android emulator special host alias
+  if (Platform.OS === "android") {
+    return "http://10.0.2.2:3000";
+  }
+
+  // iOS simulator on same machine can reach localhost
+  if (Platform.OS === "ios") {
+    return "http://localhost:3000";
+  }
+
+  // Web and others
+  return "http://localhost:3000";
+}
+
+const STRIPE_BACKEND = getDefaultBackendUrl();
 
 function buildBackendUrl(path: string): string {
   const normalizedBase = STRIPE_BACKEND.replace(/\/+$/, "");
@@ -35,6 +58,10 @@ export async function fetchPaymentSheetParams(
   }
 
   const checkoutUrl = buildBackendUrl("/checkout");
+  console.log(`[Stripe] Platform: ${Platform.OS}`);
+  console.log(`[Stripe] Backend URL: ${STRIPE_BACKEND}`);
+  console.log(`[Stripe] Fetching checkout params from: ${checkoutUrl}`);
+
   let response: Response;
 
   try {
@@ -43,14 +70,25 @@ export async function fetchPaymentSheetParams(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ amount, currency: normalizedCurrency }),
     });
+    console.log("[Stripe] Response status:", response.status);
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
+    console.error("[Stripe] Fetch error:", detail);
+    console.error(`[Stripe] Troubleshooting: Make sure backend is running at ${STRIPE_BACKEND}`);
     throw new Error(
       `No se pudo conectar al backend de Stripe (${checkoutUrl}). ${detail}`
     );
   }
 
   if (!response.ok) {
+    const tunnelAuthHeader = response.headers.get("www-authenticate");
+
+    if (response.status === 401 && tunnelAuthHeader?.toLowerCase().includes("tunnel")) {
+      throw new Error(
+        "El backend responde 401 por autenticacion del tunel de Codespaces, no por Stripe. Configura el puerto 3000 como Public o usa una URL de backend accesible sin login."
+      );
+    }
+
     let detail = `status ${response.status}`;
 
     try {
@@ -62,10 +100,12 @@ export async function fetchPaymentSheetParams(
       // Keep HTTP status as fallback detail.
     }
 
+    console.error("[Stripe] Backend error:", detail);
     throw new Error(`Error del backend de Stripe (${checkoutUrl}): ${detail}`);
   }
 
   const data = (await response.json()) as PaymentSheetParams;
+  console.log("[Stripe] Got payment params successfully");
 
   if (
     typeof data.paymentIntent !== "string" ||
