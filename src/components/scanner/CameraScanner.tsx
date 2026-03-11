@@ -6,7 +6,7 @@ import {
     type BarcodeType,
 } from "expo-camera";
 import * as Haptics from "expo-haptics";
-import { AlertTriangle, CheckCircle2, ScanDot } from "lucide-react-native";
+import { AlertTriangle, CheckCircle2, ScanLine } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Animated, Button, Easing, StyleSheet, Text, View } from "react-native";
 
@@ -252,7 +252,7 @@ export function CameraScanner({
           ) : scanState === "error" ? (
             <AlertTriangle size={16} color={uiState.frameColor} />
           ) : (
-            <ScanDot size={16} color={uiState.frameColor} />
+            <ScanLine size={16} color={uiState.frameColor} />
           )}
           <Text style={styles.stateText}>{uiState.label}</Text>
         </View>
