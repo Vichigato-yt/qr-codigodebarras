@@ -43,9 +43,10 @@ const StripeProvider = getStripeProvider();
 
 /**
  * Stripe publishable key for the demo/test environment.
+ * Must match the STRIPE_PUBLISHABLE_KEY in .env
  * Replace with your own live key in production.
  */
-const STRIPE_PUBLISHABLE_KEY = "pk_test_TYooMQauvdEDq54NiTphI7jx";
+const STRIPE_PUBLISHABLE_KEY = "pk_test_51T9BAM2dY7yEhpcTllfcWGrDHuvRpewbnY9ehXvOID9PJpt78nBKICTs0pln8Tj1b9NUTqq1DSzRqiTRf4sQRVSz009yRT9Fgx";
 
 export default function RootLayout() {
   return (

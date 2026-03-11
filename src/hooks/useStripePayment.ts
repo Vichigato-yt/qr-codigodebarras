@@ -28,6 +28,10 @@ function isExpoGo(): boolean {
 
 function useSafeStripe(): StripeHooks {
   if (isExpoGo()) {
+    console.warn(
+      "[Stripe] Running in Expo Go - native Stripe features unavailable. Use a Development Build for full functionality:\n" +
+      "  npm run start:dev-client"
+    );
     return {
       initPaymentSheet: async () => ({
         error: {
@@ -52,12 +56,15 @@ function useSafeStripe(): StripeHooks {
     };
 
     if (stripeModule.useStripe) {
+      console.log("[Stripe] Using native Stripe hooks from @stripe/stripe-react-native");
       return stripeModule.useStripe();
     }
-  } catch {
+  } catch (error) {
     // Native Stripe module not available (e.g., Expo Go).
+    console.error("[Stripe] Failed to load native stripe module:", error);
   }
 
+  console.warn("[Stripe] Falling back to unavailable implementation");
   return {
     initPaymentSheet: async () => ({
       error: {
@@ -131,8 +138,15 @@ export function useStripePayment({
     setErrorMessage(null);
 
     try {
-      const { paymentIntent, ephemeralKey, customer } =
+      console.log("[Payment] Starting payment flow...");
+      const { paymentIntent, ephemeralKey, customer, publishableKey } =
         await fetchPaymentSheetParams(amount, currency);
+      console.log("[Payment] Got payment params:");
+      console.log("  paymentIntent:", paymentIntent?.substring(0, 30) + "...");
+      console.log("  ephemeralKey:", ephemeralKey?.substring(0, 30) + "...");
+      console.log("  customer:", customer);
+      console.log("  publishableKey:", publishableKey);
+      console.log("[Payment] Initializing sheet with merchantName:", merchantName);
 
       const { error: initError } = await initPaymentSheet({
         merchantDisplayName: merchantName,
@@ -161,19 +175,24 @@ export function useStripePayment({
       });
 
       if (initError) {
+        console.error("[Payment] initPaymentSheet failed:", initError);
         setStatus("error");
         setErrorMessage(initError.message);
         onPaymentComplete?.({ status: "error", message: initError.message });
         return;
       }
 
+      console.log("[Payment] Sheet initialized, presenting...");
       const { error: presentError } = await presentPaymentSheet();
+      console.log("[Payment] presentPaymentSheet returned:", presentError);
 
       if (presentError) {
         if (presentError.code === "Canceled") {
+          console.log("[Payment] User cancelled payment");
           setStatus("idle");
           onPaymentComplete?.({ status: "canceled" });
         } else {
+          console.error("[Payment] presentPaymentSheet error:", presentError);
           setStatus("error");
           setErrorMessage(presentError.message);
           onPaymentComplete?.({ status: "error", message: presentError.message });
@@ -181,11 +200,13 @@ export function useStripePayment({
         return;
       }
 
+      console.log("[Payment] Payment successful!");
       setStatus("success");
       const intentId = paymentIntent.split("_secret_")[0];
       onPaymentComplete?.({ status: "success", paymentIntentId: intentId });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Error desconocido";
+      console.error("[Payment] Unexpected error:", err);
       setStatus("error");
       setErrorMessage(message);
       onPaymentComplete?.({ status: "error", message });
