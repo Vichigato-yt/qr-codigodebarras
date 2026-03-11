@@ -23,8 +23,7 @@
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
-      ],
-      "package": "com.siramong.qrcodigodebarras"
+      ]
     },
     "web": {
       "output": "static",
@@ -65,7 +64,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "3181bb4c-5be6-466c-b8aa-fe6f17770ac7"
+        "projectId": "dce39bd9-9551-4f4b-a989-7ce893139843"
       }
     }
   }
