@@ -7,7 +7,13 @@ import type { PaymentSheetParams } from "../types/payment";
  */
 const STRIPE_BACKEND =
   process.env.EXPO_PUBLIC_STRIPE_BACKEND ||
-  "https://stripe-mobile-payment-sheet.glitch.me";
+  "https://silver-acorn-5xj7qgqjw6727vrw-3000.app.github.dev/";
+
+function buildBackendUrl(path: string): string {
+  const normalizedBase = STRIPE_BACKEND.replace(/\/+$/, "");
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${normalizedBase}${normalizedPath}`;
+}
 
 /**
  * Fetch PaymentIntent params from the demo backend.
@@ -19,14 +25,24 @@ export async function fetchPaymentSheetParams(
   amount: number,
   currency: string = "usd"
 ): Promise<PaymentSheetParams> {
-  const response = await fetch(`${STRIPE_BACKEND}/checkout`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ amount, currency }),
-  });
+  const checkoutUrl = buildBackendUrl("/checkout");
+  let response: Response;
+
+  try {
+    response = await fetch(checkoutUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount, currency }),
+    });
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `No se pudo conectar al backend de Stripe (${checkoutUrl}). ${detail}`
+    );
+  }
 
   if (!response.ok) {
-    throw new Error(`Demo backend error: ${response.status}`);
+    throw new Error(`Demo backend error (${checkoutUrl}): ${response.status}`);
   }
 
   const data = (await response.json()) as PaymentSheetParams;

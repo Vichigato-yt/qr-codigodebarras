@@ -11,8 +11,6 @@
  */
 
 const http = require("http");
-const url = require("url");
-const querystring = require("querystring");
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 const STRIPE_PUBLISHABLE_KEY = process.env.STRIPE_PUBLISHABLE_KEY;
@@ -51,8 +49,8 @@ async function createPaymentIntent(amount, currency) {
 }
 
 const requestListener = async (req, res) => {
-  const parsedUrl = url.parse(req.url, true);
-  const pathname = parsedUrl.pathname;
+  const requestUrl = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
+  const pathname = requestUrl.pathname.replace(/\/{2,}/g, "/");
 
   // Enable CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
