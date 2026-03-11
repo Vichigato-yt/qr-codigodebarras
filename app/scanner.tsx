@@ -1,15 +1,10 @@
 import { useRouter } from "expo-router";
+import { BookMarked, ScanLine } from "lucide-react-native";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
 
 import { CameraScanner } from "@/src/components/scanner/CameraScanner";
-
-/** Products keyed by barcode / QR code value. Price is stored in cents. */
-const LOCAL_PRODUCTS: Record<string, { name: string; price: number; currency: string }> = {
-  "SKU-9920": { name: "Café en grano 500g",   price: 1290, currency: "usd" },
-  "SKU-1101": { name: "Leche deslactosada 1L", price:  165, currency: "usd" },
-  "SKU-2007": { name: "Galletas integrales",   price:  240, currency: "usd" },
-};
+import { READER_INFO, SKU_CATALOG_MAP } from "@/src/data/sku-catalog";
 
 export default function ScannerScreen() {
   const router = useRouter();
@@ -17,7 +12,7 @@ export default function ScannerScreen() {
   const [lastCode, setLastCode] = useState<string | null>(null);
   const processingRef = useRef(false);
 
-  const localProductMap = useMemo(() => LOCAL_PRODUCTS, []);
+  const localProductMap = useMemo(() => SKU_CATALOG_MAP, []);
 
   const handleDataDetected = useCallback(async (data: string) => {
     if (processingRef.current) {
@@ -80,11 +75,19 @@ export default function ScannerScreen() {
         isPaused={isProcessing}
         onDataDetected={handleDataDetected}
         onScanError={handleScanError}
+        supportedTypes={READER_INFO.supportedTypes}
       />
 
       <View style={styles.headerPanel}>
-        <Text style={styles.headerTitle}>Escaner de productos</Text>
+        <View style={styles.row}>
+          <ScanLine size={16} color="#d9e8ff" />
+          <Text style={styles.headerTitle}>Escaner de productos</Text>
+        </View>
         <Text style={styles.headerSubtitle}>Alinea el codigo dentro del marco para detectar el articulo.</Text>
+        <View style={styles.rowHint}>
+          <BookMarked size={14} color="#9fb3d1" />
+          <Text style={styles.hintText}>{READER_INFO.helperText}</Text>
+        </View>
       </View>
 
       <View style={styles.footerPanel}>
@@ -122,6 +125,23 @@ const styles = StyleSheet.create({
     color: "#b5c5e0",
     fontSize: 13,
     lineHeight: 18,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+  },
+  rowHint: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 8,
+  },
+  hintText: {
+    flex: 1,
+    color: "#9fb3d1",
+    fontSize: 12,
+    lineHeight: 16,
   },
   footerPanel: {
     position: "absolute",

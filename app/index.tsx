@@ -1,5 +1,8 @@
 import { Link } from "expo-router";
+import { Barcode, CreditCard, Package, ScanLine } from "lucide-react-native";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+
+import { READER_INFO, SKU_CATALOG } from "@/src/data/sku-catalog";
 
 export default function Index() {
   return (
@@ -14,7 +17,10 @@ export default function Index() {
       </Text>
 
       <View style={styles.heroCard}>
-        <Text style={styles.heroTitle}>Flujo de caja listo para usar</Text>
+        <View style={styles.heroTitleRow}>
+          <ScanLine size={18} color="#cde2ff" strokeWidth={2.2} />
+          <Text style={styles.heroTitle}>Flujo de caja listo para usar</Text>
+        </View>
         <Text style={styles.heroText}>
           Escanea un producto, revisa el total y procesa el pago sin salir de la app.
         </Text>
@@ -27,22 +33,29 @@ export default function Index() {
 
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>Como funciona</Text>
-        <Text style={styles.listItem}>1. Escaneas un codigo del catalogo local.</Text>
-        <Text style={styles.listItem}>2. La app arma el resumen del pedido.</Text>
-        <Text style={styles.listItem}>3. Stripe presenta el metodo de pago y confirma.</Text>
+        <View style={styles.featureRow}>
+          <Barcode size={16} color="#9fc3ff" />
+          <Text style={styles.listItem}>Escaneas un codigo del catalogo local.</Text>
+        </View>
+        <View style={styles.featureRow}>
+          <Package size={16} color="#9fc3ff" />
+          <Text style={styles.listItem}>La app arma el resumen del pedido.</Text>
+        </View>
+        <View style={styles.featureRow}>
+          <CreditCard size={16} color="#9fc3ff" />
+          <Text style={styles.listItem}>Stripe presenta el metodo de pago y confirma.</Text>
+        </View>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Codigos de prueba</Text>
-        <View style={styles.codePill}>
-          <Text style={styles.codePillText}>SKU-9920</Text>
-        </View>
-        <View style={styles.codePill}>
-          <Text style={styles.codePillText}>SKU-1101</Text>
-        </View>
-        <View style={styles.codePill}>
-          <Text style={styles.codePillText}>SKU-2007</Text>
-        </View>
+        <Text style={styles.sectionTitle}>Catalogo SKU para lector</Text>
+        {SKU_CATALOG.map((item) => (
+          <View key={item.code} style={styles.skuRow}>
+            <Text style={styles.codePillText}>{item.code}</Text>
+            <Text style={styles.skuName}>{item.name}</Text>
+          </View>
+        ))}
+        <Text style={styles.note}>{READER_INFO.helperText}</Text>
       </View>
 
       <View style={styles.card}>
@@ -106,6 +119,11 @@ const styles = StyleSheet.create({
     fontSize: 19,
     fontWeight: "800",
   },
+  heroTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
   heroText: {
     color: "#d6e3f7",
     fontSize: 14,
@@ -146,21 +164,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 21,
     color: "#C8D4E5",
+    flex: 1,
   },
-  codePill: {
-    alignSelf: "flex-start",
+  featureRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  skuRow: {
     backgroundColor: "#1f2a44",
-    borderRadius: 8,
+    borderRadius: 10,
     paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingVertical: 9,
     borderWidth: 1,
     borderColor: "#2c3f68",
+    gap: 4,
   },
   codePillText: {
     color: "#dce8fc",
     fontSize: 13,
     fontWeight: "700",
     letterSpacing: 0.2,
+  },
+  skuName: {
+    color: "#b9cde8",
+    fontSize: 12,
   },
   note: {
     marginTop: 4,

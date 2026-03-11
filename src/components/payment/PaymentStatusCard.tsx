@@ -1,3 +1,4 @@
+import { AlertCircle, Ban, CheckCircle2 } from "lucide-react-native";
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from "react-native";
 import type { PaymentResult } from "../../types/payment";
 
@@ -54,7 +55,6 @@ export function PaymentStatusCard({
 
   const cardColor = isSuccess ? "#113b2a" : isCanceled ? "#1a2740" : "#5e1e1f";
   const borderColor = isSuccess ? "#34d399" : isCanceled ? "#9FB3D1" : "#f87171";
-  const icon = isSuccess ? "✓" : isCanceled ? "—" : "✗";
   const title = isSuccess
     ? "Pago exitoso"
     : isCanceled
@@ -64,7 +64,13 @@ export function PaymentStatusCard({
   return (
     <View style={[styles.card, { backgroundColor: cardColor, borderColor }, style]}>
       <View style={styles.row}>
-        <Text style={[styles.icon, { color: borderColor }]}>{icon}</Text>
+        {isSuccess ? (
+          <CheckCircle2 size={18} color={borderColor} />
+        ) : isCanceled ? (
+          <Ban size={18} color={borderColor} />
+        ) : (
+          <AlertCircle size={18} color={borderColor} />
+        )}
         <Text style={styles.title}>{title}</Text>
       </View>
 
@@ -104,10 +110,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-  },
-  icon: {
-    fontSize: 18,
-    fontWeight: "800",
   },
   title: {
     color: "#F8FAFC",

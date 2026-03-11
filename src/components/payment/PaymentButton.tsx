@@ -1,8 +1,10 @@
+import { CheckCircle2, Wallet } from "lucide-react-native";
 import {
     ActivityIndicator,
     Pressable,
     StyleSheet,
     Text,
+    View,
     type StyleProp,
     type ViewStyle,
 } from "react-native";
@@ -74,9 +76,16 @@ export function PaymentButton({
       accessibilityState={{ disabled: disabled || isLoading || isSuccess, busy: isLoading }}
     >
       {isLoading ? (
-        <ActivityIndicator size="small" color="#F8FAFC" />
+        <ActivityIndicator size="small" color="#04162d" />
       ) : (
-        <Text style={styles.label}>{isSuccess ? "✓ Pago completado" : label}</Text>
+        <View style={styles.contentRow}>
+          {isSuccess ? (
+            <CheckCircle2 size={16} color="#04162d" />
+          ) : (
+            <Wallet size={16} color="#04162d" />
+          )}
+          <Text style={styles.label}>{isSuccess ? "Pago completado" : label}</Text>
+        </View>
       )}
     </Pressable>
   );
@@ -100,6 +109,11 @@ const styles = StyleSheet.create({
   },
   buttonPressed: {
     opacity: 0.82,
+  },
+  contentRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   label: {
     color: "#04162d",

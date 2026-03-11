@@ -1,8 +1,10 @@
+import { ShieldCheck } from "lucide-react-native";
 import { useCallback, useState } from "react";
 import {
     ScrollView,
     StyleSheet,
     Text,
+    View,
     type StyleProp,
     type ViewStyle,
 } from "react-native";
@@ -91,7 +93,10 @@ export function StripeCheckoutSheet({
         style={styles.button}
       />
 
-      <Text style={styles.secureNote}>Pago seguro procesado por Stripe</Text>
+      <View style={styles.secureRow}>
+        <ShieldCheck size={14} color="#9fb3d1" />
+        <Text style={styles.secureNote}>Pago seguro procesado por Stripe</Text>
+      </View>
     </ScrollView>
   );
 }
@@ -127,7 +132,12 @@ const styles = StyleSheet.create({
   secureNote: {
     color: "#9fb3d1",
     fontSize: 12,
-    textAlign: "center",
+  },
+  secureRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 6,
     marginTop: 2,
   },
 });

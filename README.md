@@ -25,6 +25,8 @@ app/
 	scanner.tsx          # Pantalla de escaneo
 	payment.tsx          # Pantalla de checkout
 src/
+	data/
+		sku-catalog.ts      # Catalogo SKU y configuracion del lector
 	components/
 		scanner/
 			CameraScanner.tsx
@@ -109,6 +111,8 @@ Scripts utiles:
 4. En modo test de Stripe usa:
 	 - Tarjeta: `4242 4242 4242 4242`
 	 - Fecha futura, CVC cualquiera, ZIP cualquiera.
+
+Los SKUs y metadatos de lectura viven en `src/data/sku-catalog.ts`.
 
 ## Compatibilidad Expo Go
 

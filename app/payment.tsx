@@ -1,4 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { CreditCard, ReceiptText } from "lucide-react-native";
 import { useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -48,7 +49,10 @@ export default function PaymentScreen() {
       style={styles.sheet}
     >
       <View style={styles.header}>
-        <Text style={styles.screenTitle}>Checkout</Text>
+        <View style={styles.headerRow}>
+          <ReceiptText size={20} color="#d4e5ff" />
+          <Text style={styles.screenTitle}>Checkout</Text>
+        </View>
         <Text style={styles.screenSubtitle}>Revisa tu orden antes de confirmar el cobro.</Text>
       </View>
 
@@ -76,7 +80,10 @@ export default function PaymentScreen() {
       </View>
 
       <View style={styles.sectionDivider} />
-      <Text style={styles.sectionTitle}>Método de pago</Text>
+      <View style={styles.paymentMethodRow}>
+        <CreditCard size={16} color="#bfd2f0" />
+        <Text style={styles.sectionTitle}>Método de pago</Text>
+      </View>
     </StripeCheckoutSheet>
   );
 }
@@ -101,6 +108,11 @@ const styles = StyleSheet.create({
   header: {
     paddingTop: 8,
     paddingBottom: 6,
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   screenTitle: {
     fontSize: 27,
@@ -169,5 +181,10 @@ const styles = StyleSheet.create({
     color: "#bfd2f0",
     textTransform: "uppercase",
     letterSpacing: 0.5,
+  },
+  paymentMethodRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
   },
 });
