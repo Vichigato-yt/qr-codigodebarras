@@ -1,7 +1,7 @@
-import Constants from "expo-constants";
 // app/_layout.tsx
-import { Redirect, Stack } from "expo-router";
-import { type ComponentType, type ReactNode } from "react";
+import React, { type ComponentType, type ReactNode } from "react";
+import Constants from "expo-constants";
+import { Stack } from "expo-router";
 
 // Import and register Stripe background task early in the app lifecycle
 import "../src/stripe-task-manager";
@@ -48,8 +48,6 @@ const StripeProvider = getStripeProvider();
  * Replace with your own live key in production.
  */
 const STRIPE_PUBLISHABLE_KEY = "pk_test_51T9BAM2dY7yEhpcTllfcWGrDHuvRpewbnY9ehXvOID9PJpt78nBKICTs0pln8Tj1b9NUTqq1DSzRqiTRf4sQRVSz009yRT9Fgx";
-import React from "react";
-import { useState } from "react";
 
 export default function RootLayout() {
   return (

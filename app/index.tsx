@@ -1,21 +1,14 @@
 // app/index.tsx
-import { AuthCard } from "@/src/components/(auth)/organisms/AuthCard";
-import React, { useState } from "react";
+import React from "react";
 import { Barcode, CreditCard, Package, ScanLine } from "lucide-react-native";
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Link } from "expo-router";
 
 import { READER_INFO, SKU_CATALOG } from "@/src/data/sku-catalog";
-import Home from "./home";
 
 export default function Index() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  if (isAuthenticated) {
-    return <Home />;
-  }
-
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.scroll}>
       <View style={styles.eyebrowBadge}>
         <Text style={styles.eyebrowText}>POS inteligente</Text>
       </View>
