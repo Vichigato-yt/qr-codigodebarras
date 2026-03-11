@@ -1,6 +1,12 @@
 import { Audio } from "expo-av";
-import { CameraView, useCameraPermissions, type BarcodeScanningResult } from "expo-camera";
+import {
+    CameraView,
+    useCameraPermissions,
+    type BarcodeScanningResult,
+    type BarcodeType,
+} from "expo-camera";
 import * as Haptics from "expo-haptics";
+import { AlertTriangle, CheckCircle2, ScanLine } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Animated, Button, Easing, StyleSheet, Text, View } from "react-native";
 
@@ -8,9 +14,15 @@ type CameraScannerProps = {
   isPaused?: boolean;
   onDataDetected: (data: string) => Promise<void> | void;
   onScanError?: (error: Error) => void;
+  supportedTypes?: BarcodeType[];
 };
 
-export function CameraScanner({ isPaused = false, onDataDetected, onScanError }: CameraScannerProps) {
+export function CameraScanner({
+  isPaused = false,
+  onDataDetected,
+  onScanError,
+  supportedTypes = ["qr"],
+}: CameraScannerProps) {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanState, setScanState] = useState<"idle" | "success" | "error">("idle");
   const sameCodeThrottleMs = 2200;
@@ -195,7 +207,6 @@ export function CameraScanner({ isPaused = false, onDataDetected, onScanError }:
       return {
         frameColor: "#22c55e",
         label: "Código detectado",
-        icon: "✓",
       };
     }
 
@@ -203,14 +214,12 @@ export function CameraScanner({ isPaused = false, onDataDetected, onScanError }:
       return {
         frameColor: "#ef4444",
         label: "Lectura inválida",
-        icon: "!",
       };
     }
 
     return {
       frameColor: "#d1d5db",
       label: "Apunta al código",
-      icon: "◦",
     };
   }, [scanState]);
 
@@ -236,17 +245,7 @@ export function CameraScanner({ isPaused = false, onDataDetected, onScanError }:
         style={StyleSheet.absoluteFillObject}
         facing="back"
         onBarcodeScanned={isPaused ? undefined : handleBarcodeScanned}
-        barcodeScannerSettings={{
-          barcodeTypes: [
-            "qr",
-            "ean13",
-            "ean8",
-            "upc_a",
-            "upc_e",
-            "code39",
-            "code128",
-          ],
-        }}
+        barcodeScannerSettings={{ barcodeTypes: supportedTypes }}
       />
 
       <Animated.View
@@ -280,7 +279,13 @@ export function CameraScanner({ isPaused = false, onDataDetected, onScanError }:
         </View>
 
         <View style={[styles.stateBadge, { borderColor: uiState.frameColor }]}> 
-          <Text style={[styles.stateIcon, { color: uiState.frameColor }]}>{uiState.icon}</Text>
+          {scanState === "success" ? (
+            <CheckCircle2 size={16} color={uiState.frameColor} />
+          ) : scanState === "error" ? (
+            <AlertTriangle size={16} color={uiState.frameColor} />
+          ) : (
+            <ScanLine size={16} color={uiState.frameColor} />
+          )}
           <Text style={styles.stateText}>{uiState.label}</Text>
         </View>
 
@@ -355,10 +360,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 14,
     backgroundColor: "rgba(8,11,19,0.85)",
-  },
-  stateIcon: {
-    fontSize: 16,
-    fontWeight: "700",
   },
   stateText: {
     color: "#F8FAFC",

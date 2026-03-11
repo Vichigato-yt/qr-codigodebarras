@@ -1,57 +1,60 @@
-import { Stack, useRouter, useSegments } from "expo-router";
-import { useCallback, useEffect } from "react";
+import Constants from "expo-constants";
+import { Stack } from "expo-router";
+import { type ComponentType, type ReactNode } from "react";
 
-import { usePushNotifications } from "@/src/lib/core/notifications";
-import { AuthProvider, useAuth } from "@/src/lib/modules/auth/AuthProvider";
+// Import and register Stripe background task early in the app lifecycle
+import "../src/stripe-task-manager";
 
-const NotificationsGate = () => {
-  const { session } = useAuth();
-  const userId = session?.user.id;
-
-  const handleToken = useCallback(
-    (token: string) => {
-      console.log("[push] Expo token", token, "user", userId ?? "anon");
-    },
-    [userId]
-  );
-
-  usePushNotifications(userId, {
-    enabled: true,
-    onToken: handleToken,
-  });
-
-  return null;
+type StripeProviderProps = {
+  children: ReactNode;
+  publishableKey?: string;
+  merchantIdentifier?: string;
 };
 
-function AuthLayout() {
-  const { session, loading } = useAuth();
-  const segments = useSegments();
-  const router = useRouter();
+const FallbackStripeProvider: ComponentType<StripeProviderProps> = ({ children }) => {
+  return <>{children}</>;
+};
 
-  const inAuthGroup = segments[0] === "(auth)";
+function isExpoGo(): boolean {
+  const executionEnvironment = (Constants as { executionEnvironment?: string })
+    .executionEnvironment;
+  const appOwnership = (Constants as { appOwnership?: string }).appOwnership;
 
-  useEffect(() => {
-    if (loading) return;
-
-    if (!session && !inAuthGroup) {
-      router.replace("/(auth)/login");
-    } else if (session && inAuthGroup) {
-      router.replace("/");
-    }
-  }, [session, loading, inAuthGroup, router]);
-
-  return (
-    <>
-      <NotificationsGate />
-      <Stack />
-    </>
-  );
+  return executionEnvironment === "storeClient" || appOwnership === "expo";
 }
+
+function getStripeProvider(): ComponentType<StripeProviderProps> {
+  if (isExpoGo()) {
+    return FallbackStripeProvider;
+  }
+
+  try {
+    const stripeModule = require("@stripe/stripe-react-native") as {
+      StripeProvider?: ComponentType<StripeProviderProps>;
+    };
+
+    return stripeModule.StripeProvider ?? FallbackStripeProvider;
+  } catch {
+    return FallbackStripeProvider;
+  }
+}
+
+const StripeProvider = getStripeProvider();
+
+/**
+ * Stripe publishable key for the demo/test environment.
+ * Must match the STRIPE_PUBLISHABLE_KEY in .env
+ * Replace with your own live key in production.
+ */
+const STRIPE_PUBLISHABLE_KEY = "pk_test_51T9BAM2dY7yEhpcTllfcWGrDHuvRpewbnY9ehXvOID9PJpt78nBKICTs0pln8Tj1b9NUTqq1DSzRqiTRf4sQRVSz009yRT9Fgx";
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <AuthLayout />
-    </AuthProvider>
+    <StripeProvider
+      publishableKey={STRIPE_PUBLISHABLE_KEY}
+      merchantIdentifier="merchant.com.qrcodigodebarras"
+    >
+      <Stack screenOptions={{ headerShown: false }}/>
+    </StripeProvider>
   );
 }
