@@ -1,5 +1,5 @@
 import { CameraView, useCameraPermissions, type BarcodeScanningResult } from "expo-camera";
-import { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { FlashOverlay } from "../atoms/FlashOverlay";
 import { CameraPermission } from "../molecules/CameraPermission";
@@ -7,7 +7,6 @@ import { ScanOverlay } from "../molecules/ScanOverlay";
 import { useScannerAudio } from "@/src/lib/hooks/useScannerAudio";
 import { useScanAnimation } from "@/src/lib/hooks/useScanAnimation";
 import { useScanState } from "@/src/lib/hooks/useScanState";
-import React from "react";
 import * as Haptics from "expo-haptics";
 
 type CameraScannerProps = {

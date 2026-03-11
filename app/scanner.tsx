@@ -1,11 +1,10 @@
 import { useRouter } from "expo-router";
 import { BookMarked, ScanLine } from "lucide-react-native";
-import { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
 
 import { CameraScanner } from "@/src/components/Organisms/CameraScanner";
 import { READER_INFO, SKU_CATALOG_MAP } from "@/src/data/sku-catalog";
-import React from "react";
 
 export default function ScannerScreen() {
   const router = useRouter();

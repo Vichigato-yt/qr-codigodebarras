@@ -1,6 +1,6 @@
 import { StyleSheet, View } from "react-native";
 
-import { CameraScanner } from "@/src/components/scanner/CameraScanner";
+import { CameraScanner } from "@/src/components/Organisms/CameraScanner";
 import { useScannerFlow } from "@/src/features/scanner/hooks/useScannerFlow";
 import { ScannerHud } from "@/src/presentation/organisms/ScannerHud";
 
