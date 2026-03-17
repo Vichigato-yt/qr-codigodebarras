@@ -1,6 +1,7 @@
+import * as Notifications from "expo-notifications";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { CreditCard, ReceiptText } from "lucide-react-native";
-import { useCallback } from "react";
+import React, { useCallback, useRef } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import { StripeCheckoutSheet } from "@/src/components/payment/StripeCheckoutSheet";
@@ -20,6 +21,7 @@ const SUCCESS_REDIRECT_DELAY_MS = 2200;
 
 export default function PaymentScreen() {
   const router = useRouter();
+  const lastNotifiedPaymentRef = useRef<string | null>(null);
   const { name, price, code, currency } = useLocalSearchParams<{
     name: string;
     price: string;
@@ -31,12 +33,35 @@ export default function PaymentScreen() {
   const currencyCode = currency ?? "usd";
 
   const handlePaymentComplete = useCallback(
-    (result: PaymentResult) => {
+    async (result: PaymentResult) => {
       if (result.status === "success") {
+        const paymentKey = result.paymentIntentId ?? `payment_${Date.now()}`;
+
+        if (lastNotifiedPaymentRef.current !== paymentKey) {
+          lastNotifiedPaymentRef.current = paymentKey;
+
+          try {
+            await Notifications.scheduleNotificationAsync({
+              content: {
+                title: "Pago confirmado",
+                body: `${name ?? "Producto"} pagado con exito.`,
+                data: {
+                  code,
+                  paymentIntentId: result.paymentIntentId ?? null,
+                  screen: "payment",
+                },
+              },
+              trigger: null,
+            });
+          } catch (notificationError) {
+            console.log("No se pudo enviar la notificacion de pago", notificationError);
+          }
+        }
+
         setTimeout(() => router.back(), SUCCESS_REDIRECT_DELAY_MS);
       }
     },
-    [router]
+    [code, name, router]
   );
 
   return (

@@ -6,11 +6,15 @@ import { Alert, StyleSheet, Text, View } from "react-native";
 import { CameraScanner } from "@/src/components/Organisms/CameraScanner";
 import { READER_INFO, SKU_CATALOG_MAP } from "@/src/data/sku-catalog";
 
+const SAME_CODE_COOLDOWN_MS = 1800;
+
 export default function ScannerScreen() {
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastCode, setLastCode] = useState<string | null>(null);
   const processingRef = useRef(false);
+  const navigationLockRef = useRef(false);
+  const lastAcceptedReadRef = useRef<{ code: string; scannedAt: number } | null>(null);
 
   const localProductMap = useMemo(() => SKU_CATALOG_MAP, []);
 
@@ -19,11 +23,28 @@ export default function ScannerScreen() {
       return;
     }
 
+    const code = data.trim();
+    const now = Date.now();
+    const lastAccepted = lastAcceptedReadRef.current;
+
+    if (
+      code &&
+      lastAccepted &&
+      lastAccepted.code === code &&
+      now - lastAccepted.scannedAt < SAME_CODE_COOLDOWN_MS
+    ) {
+      return;
+    }
+
+    lastAcceptedReadRef.current = {
+      code,
+      scannedAt: now,
+    };
+
     processingRef.current = true;
     setIsProcessing(true);
 
     try {
-      const code = data.trim();
       setLastCode(code);
 
       if (code.startsWith("myapp://products/")) {
@@ -39,6 +60,8 @@ export default function ScannerScreen() {
       const localProduct = localProductMap[code];
 
       if (localProduct) {
+        navigationLockRef.current = true;
+
         // Navigate to the payment screen with product details.
         router.push({
           pathname: "/payment",
@@ -55,6 +78,10 @@ export default function ScannerScreen() {
       await new Promise((resolve) => setTimeout(resolve, 600));
       throw new Error("Código no registrado en el sistema");
     } finally {
+      if (navigationLockRef.current) {
+        return;
+      }
+
       processingRef.current = false;
       setIsProcessing(false);
     }
