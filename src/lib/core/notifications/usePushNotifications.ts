@@ -1,45 +1,28 @@
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
 
-import { supabase } from '../supabase/client.supabase';
 import { NotificationAdapter } from './notification.adapter';
+import { supabase } from '../supabase/client.supabase';
 
-export type UsePushNotificationsOptions = {
-  enabled?: boolean;
-  projectId?: string;
-  onToken?: (token: string) => void | Promise<void>;
-};
-
+// Configura los handlers globales una sola vez al cargar el módulo.
 NotificationAdapter.setup();
 
-export const usePushNotifications = (
-  userId?: string,
-  options: UsePushNotificationsOptions = {}
-) => {
-  const { enabled, projectId, onToken } = options;
-  const shouldRun = enabled ?? Boolean(userId);
-
+export const usePushNotifications = (userId?: string) => {
   useEffect(() => {
-    if (!shouldRun) return;
+    if (!userId) return;
 
     const register = async () => {
-      const token = await NotificationAdapter.registerForPushNotificationsAsync({
-        projectId,
-      });
+      const token = await NotificationAdapter.registerForPushNotificationsAsync();
 
       if (!token) return;
 
-      if (userId) {
-        await saveTokenToDatabase(token, userId);
-      }
-
-      if (onToken) {
-        await onToken(token);
-      }
+      await saveTokenToDatabase(token, userId);
     };
 
-    register();
-  }, [shouldRun, projectId, userId, onToken]);
+    register().catch((err) => {
+      console.error('Error al registrar notificaciones push:', err);
+    });
+  }, [userId]);
 };
 
 async function saveTokenToDatabase(token: string, userId: string) {
@@ -56,8 +39,6 @@ async function saveTokenToDatabase(token: string, userId: string) {
     );
 
   if (error) {
-    console.error('Error saving device token:', error);
-  } else {
-    console.log('Device token registered in Supabase');
+    console.error('Error guardando device:', error);
   }
 }
