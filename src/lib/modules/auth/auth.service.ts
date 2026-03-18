@@ -1,8 +1,9 @@
 import { supabase } from '../../core/supabase/client.supabase';
 
 /**
- * Servicio de autenticación — capa de acceso a datos.
- * Los componentes y hooks consumen este servicio, nunca el cliente de Supabase directamente.
+ * Servicio de autenticación — centraliza el acceso a Supabase Auth.
+ * La intención es que los componentes y hooks consuman este servicio
+ * en lugar del cliente de Supabase directamente.
  */
 export const authService = {
   getSession: () => supabase.auth.getSession(),

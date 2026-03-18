@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { BookMarked, ScanLine } from "lucide-react-native";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
@@ -19,7 +19,7 @@ export default function ScannerScreen() {
   const localProductMap = useMemo(() => SKU_CATALOG_MAP, []);
 
   const handleDataDetected = useCallback(async (data: string) => {
-    if (processingRef.current) {
+    if (navigationLockRef.current || processingRef.current) {
       return;
     }
 
@@ -78,14 +78,19 @@ export default function ScannerScreen() {
       await new Promise((resolve) => setTimeout(resolve, 600));
       throw new Error("Código no registrado en el sistema");
     } finally {
-      if (navigationLockRef.current) {
-        return;
-      }
-
       processingRef.current = false;
       setIsProcessing(false);
     }
   }, [localProductMap, router]);
+
+  // Reset navigation lock when the screen regains focus (e.g. after returning from payment).
+  useFocusEffect(
+    useCallback(() => {
+      navigationLockRef.current = false;
+      processingRef.current = false;
+      setIsProcessing(false);
+    }, [])
+  );
 
   const handleScanError = useCallback((error: Error) => {
     if (error.message === "EMPTY_SCAN") {
