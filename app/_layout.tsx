@@ -5,7 +5,6 @@ import React, { type ComponentType, type ReactNode } from "react";
 
 // Import and register Stripe background task early in the app lifecycle
 import { AuthProvider, useAuth } from "@/src/lib/modules/auth/AuthProvider";
-import { usePushNotifications } from "@/src/lib/modules/notifications/usePushNotifications";
 import "../src/stripe-task-manager";
 
 type StripeProviderProps = {
@@ -56,8 +55,6 @@ function AuthGate() {
   const segments = useSegments();
   const router = useRouter();
   const navigationState = useRootNavigationState();
-
-  usePushNotifications(session?.user.id);
 
   React.useEffect(() => {
     if (loading || !navigationState?.key) {
