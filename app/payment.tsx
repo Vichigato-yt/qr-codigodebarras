@@ -21,7 +21,7 @@ const SUCCESS_REDIRECT_DELAY_MS = 2200;
 
 export default function PaymentScreen() {
   const router = useRouter();
-  const lastNotifiedPaymentRef = useRef<string | null>(null);
+  const hasNotifiedRef = useRef(false);
   const { name, price, code, currency } = useLocalSearchParams<{
     name: string;
     price: string;
@@ -35,16 +35,14 @@ export default function PaymentScreen() {
   const handlePaymentComplete = useCallback(
     async (result: PaymentResult) => {
       if (result.status === "success") {
-        const paymentKey = result.paymentIntentId ?? `payment_${Date.now()}`;
-
-        if (lastNotifiedPaymentRef.current !== paymentKey) {
-          lastNotifiedPaymentRef.current = paymentKey;
+        if (!hasNotifiedRef.current) {
+          hasNotifiedRef.current = true;
 
           try {
             await Notifications.scheduleNotificationAsync({
               content: {
                 title: "Pago confirmado",
-                body: `${name ?? "Producto"} pagado con exito.`,
+                body: `${name ?? "Producto"} pagado con éxito.`,
                 data: {
                   code,
                   paymentIntentId: result.paymentIntentId ?? null,
@@ -54,7 +52,7 @@ export default function PaymentScreen() {
               trigger: null,
             });
           } catch (notificationError) {
-            console.log("No se pudo enviar la notificacion de pago", notificationError);
+            console.log("No se pudo enviar la notificación de pago", notificationError);
           }
         }
 
