@@ -5,8 +5,6 @@ import { useScannerNotifications } from "@/src/features/scanner/hooks/useScanner
 import { FAST_SCAN_CODE, MOCK_PRODUCTS } from "@/src/features/scanner/model/mockProducts";
 import type { MockProduct } from "@/src/features/scanner/model/types";
 
-const SAME_CODE_COOLDOWN_MS = 1800;
-
 const resolveCodeFromQrApi = async (rawCode: string) => {
   const isImageUrl = /^https?:\/\/.+\.(png|jpg|jpeg|webp)$/i.test(rawCode);
 
@@ -37,7 +35,6 @@ export function useScannerFlow() {
   );
   const [selectedProduct, setSelectedProduct] = useState<MockProduct | null>(null);
   const processingRef = useRef(false);
-  const lastAcceptedReadRef = useRef<{ code: string; scannedAt: number } | null>(null);
   const { notifyScanSuccess } = useScannerNotifications();
 
   const handleDataDetected = useCallback(async (data: string) => {
@@ -45,28 +42,11 @@ export function useScannerFlow() {
       return;
     }
 
-    const rawCode = data.trim();
-    const now = Date.now();
-    const lastAccepted = lastAcceptedReadRef.current;
-
-    if (
-      rawCode &&
-      lastAccepted &&
-      lastAccepted.code === rawCode &&
-      now - lastAccepted.scannedAt < SAME_CODE_COOLDOWN_MS
-    ) {
-      return;
-    }
-
-    lastAcceptedReadRef.current = {
-      code: rawCode,
-      scannedAt: now,
-    };
-
     processingRef.current = true;
     setIsProcessing(true);
 
     try {
+      const rawCode = data.trim();
       setLastCode(rawCode);
       setScanMessage("Analizando lectura...");
       const code = await resolveCodeFromQrApi(rawCode);

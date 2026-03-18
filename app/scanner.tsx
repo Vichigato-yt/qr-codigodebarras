@@ -1,4 +1,4 @@
-import { useFocusEffect, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { BookMarked, ScanLine } from "lucide-react-native";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
@@ -6,45 +6,24 @@ import { Alert, StyleSheet, Text, View } from "react-native";
 import { CameraScanner } from "@/src/components/Organisms/CameraScanner";
 import { READER_INFO, SKU_CATALOG_MAP } from "@/src/data/sku-catalog";
 
-const SAME_CODE_COOLDOWN_MS = 1800;
-
 export default function ScannerScreen() {
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastCode, setLastCode] = useState<string | null>(null);
   const processingRef = useRef(false);
-  const navigationLockRef = useRef(false);
-  const lastAcceptedReadRef = useRef<{ code: string; scannedAt: number } | null>(null);
 
   const localProductMap = useMemo(() => SKU_CATALOG_MAP, []);
 
   const handleDataDetected = useCallback(async (data: string) => {
-    if (navigationLockRef.current || processingRef.current) {
+    if (processingRef.current) {
       return;
     }
-
-    const code = data.trim();
-    const now = Date.now();
-    const lastAccepted = lastAcceptedReadRef.current;
-
-    if (
-      code &&
-      lastAccepted &&
-      lastAccepted.code === code &&
-      now - lastAccepted.scannedAt < SAME_CODE_COOLDOWN_MS
-    ) {
-      return;
-    }
-
-    lastAcceptedReadRef.current = {
-      code,
-      scannedAt: now,
-    };
 
     processingRef.current = true;
     setIsProcessing(true);
 
     try {
+      const code = data.trim();
       setLastCode(code);
 
       if (code.startsWith("myapp://products/")) {
@@ -60,8 +39,6 @@ export default function ScannerScreen() {
       const localProduct = localProductMap[code];
 
       if (localProduct) {
-        navigationLockRef.current = true;
-
         // Navigate to the payment screen with product details.
         router.push({
           pathname: "/payment",
@@ -82,15 +59,6 @@ export default function ScannerScreen() {
       setIsProcessing(false);
     }
   }, [localProductMap, router]);
-
-  // Reset navigation lock when the screen regains focus (e.g. after returning from payment).
-  useFocusEffect(
-    useCallback(() => {
-      navigationLockRef.current = false;
-      processingRef.current = false;
-      setIsProcessing(false);
-    }, [])
-  );
 
   const handleScanError = useCallback((error: Error) => {
     if (error.message === "EMPTY_SCAN") {
